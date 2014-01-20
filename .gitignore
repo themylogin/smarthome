@@ -33,3 +33,13 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# PyCharm
+.idea
+
+# NetBeans
+nbproject
+.dep.inc
+
+# Data files
+sound/speech_synthesizer
