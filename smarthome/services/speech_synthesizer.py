@@ -18,7 +18,7 @@ class SpeechSynthesizerLoop(Loop):
         directory = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..",
                                                   "sound", "speech_synthesizer", language))
 
-        if len(phrase) < 128:
+        if len(phrase) > 128:
             filename = os.path.join(directory, phrase[:64] + "..." +
                                                hashlib.md5(phrase.encode("utf-8")).hexdigest() + ".wav")
         else:
