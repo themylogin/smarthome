@@ -34,6 +34,7 @@ class GuestsWatcher(Object):
                     bye_guests.discard(title)
                 else:
                     if (len(guest["user"]["visits"]) > 0 and
+                        "no_welcome_postpone" in guest["came"]["data"] and
                         datetime.now() - self.last_front_door_closed_at > timedelta(minutes=5) and
                         not first_start):
                         self.properties.access("expected_guests").receive(self.properties["expected_guests"] + [title])
