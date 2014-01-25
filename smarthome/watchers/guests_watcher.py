@@ -33,10 +33,10 @@ class GuestsWatcher(Object):
                 if title in bye_guests:
                     bye_guests.discard(title)
                 else:
-                    if (len(guest["user"]["visits"]) > 0 and
+                    if (not first_start and
+                        len(guest["user"]["visits"]) > 0 and
                         "no_welcome_postpone" in guest["came"]["data"] and
-                        datetime.now() - self.last_front_door_closed_at > timedelta(minutes=5) and
-                        not first_start):
+                        datetime.now() - self.last_front_door_closed_at > timedelta(minutes=5)):
                         self.properties.access("expected_guests").receive(self.properties["expected_guests"] + [title])
                     else:
                         self.speech_synthesizer.say("В умном доме гость. Привет, %s!" % title)
