@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from Queue import Empty
+
 
 class Loop(object):
     def __init__(self, parent, thread_name=None):
@@ -11,12 +13,15 @@ class Loop(object):
 
     def _thread_target(self):
         while True:
-            args, kwargs = self.queue.get()
+            args, kwargs = self._queue_get()
 
             try:
                 self.execute(*args)
             except Exception as e:
                 self.parent.raise_error_and_sleep(self.execute_error(e, *args, **kwargs))
+
+    def _queue_get(self):
+        return self.queue.get()
 
     def __call__(self, *args, **kwargs):
         self.queue.put((args, kwargs))
@@ -37,7 +42,7 @@ class LoopWithInit(Loop):
                 self.parent.raise_error_and_sleep(self.init_error(e))
             else:
                 while True:
-                    args, kwargs = self.queue.get()
+                    args, kwargs = self._queue_get()
 
                     try:
                         self.execute(*args, **kwargs)
@@ -57,3 +62,14 @@ class LoopWithInit(Loop):
 
     def init_error(self, e):
         pass
+
+
+class PingMixin(object):
+    ping_interval = 300
+
+    def _queue_get(self):
+        while True:
+            try:
+                return self.queue.get(timeout=self.ping_interval)
+            except Empty:
+                self.ping()

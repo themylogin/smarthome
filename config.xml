@@ -96,6 +96,9 @@
         <call object="bathroom_loudspeakers" method="increase_volume" steps="2" />
     </on>
 
+    <!-- Музыка на кухне -->
+    <keep object="amplifier" property="speaker_b_on" value="kitchen_light.on or kitchen_work_zone_light.on" />
+
     <!-- Все электроприборы в доме -->
     <object name="all_electricity" class="tools.on_off_group">
         <devices>

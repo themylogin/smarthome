@@ -4,10 +4,10 @@ from __future__ import absolute_import, unicode_literals
 import paramiko
 
 from smarthome.architecture.object import Object
-from smarthome.architecture.patterns.loops import LoopWithInit
+from smarthome.architecture.patterns.loops import LoopWithInit, PingMixin
 
 
-class SshLoop(LoopWithInit):
+class SshLoop(LoopWithInit, PingMixin):
     def init(self):
         self.connection = paramiko.SSHClient()
         self.connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -24,6 +24,12 @@ class SshLoop(LoopWithInit):
     def execute_error(self, e, command, on_success, on_error):
         on_error(e)
         return "Ошибка выполнения команды по SSH: %s" % repr(e)
+
+    def ping(self):
+        stdin, stdout, stderr = self.connection.exec_command("uptime")
+        stdin.close()
+        stdout.readlines()
+        stderr.readlines()
 
 
 class Ssh(Object):
