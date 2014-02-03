@@ -9,7 +9,7 @@ from smarthome.architecture.properties.read_only_property import ReadOnlyPropert
 
 
 class BathroomFanManager(Object):
-    def __init__(self, light, fan, min_light_time=0, max_fan_time=3600, time_multiplier=2):
+    def __init__(self, light, fan, min_light_time=180, max_fan_time=3600, time_multiplier=2):
         self.light = light
         self.fan = fan
 
