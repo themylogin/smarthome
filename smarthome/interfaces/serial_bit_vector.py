@@ -46,6 +46,7 @@ class SerialBitVector(BitVector):
         try:
             self.device.flushInput()
             self.device.write("?\n")
+            self._process_device_input(self.device.readline().strip())
         except self.expected_device_errors, e:
             self.raise_error_and_sleep("Ошибка последовательного порта: %s" % repr(e))
             return

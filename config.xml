@@ -78,7 +78,7 @@
     <on object="bathroom_remote_mouse" event="KEY_POWER DOWN">
         <set object="bathroom_light" property="on" value="not bathroom_light.on" />
     </on>
-
+    <!-- Пульт в ванной: музыка -->
     <on object="bathroom_remote_mouse" event="BTN_MOUSE DOWN">
         <call object="mediacenter" method="execute_command" command="mpc toggle" />
     </on>
@@ -88,13 +88,15 @@
     <on object="bathroom_remote_keyboard" event="KEY_RIGHT DOWN">
         <call object="mediacenter" method="execute_command" command="mpc next" />
     </on>
-
+    <!-- Пульт в ванной: громкость -->
     <on object="bathroom_remote_mouse" event="KEY_VOLUMEDOWN DOWN">
         <call object="bathroom_loudspeakers" method="decrease_volume" steps="2" />
     </on>
     <on object="bathroom_remote_mouse" event="KEY_VOLUMEUP DOWN">
         <call object="bathroom_loudspeakers" method="increase_volume" steps="2" />
     </on>
+    <!-- Вентилятор в ванной -->
+    <object name="bathroom_fan_manager" class="services.bathroom_fan_manager" light="bathroom_light" fan="bathroom_fan" />
 
     <!-- Музыка на кухне -->
     <keep object="amplifier" property="speaker_b_on" value="kitchen_light.on or kitchen_work_zone_light.on" />
