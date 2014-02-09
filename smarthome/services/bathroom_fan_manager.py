@@ -35,16 +35,16 @@ class BathroomFanManager(Object):
                 self.light_powered_on_at = None
 
                 if light_time > self.min_light_time:
-                    if self.properties["fan_will_be_powered_off_at"]:
-                        base = self.properties["fan_will_be_powered_off_at"]
-                    else:
-                        base = datetime.now()
+                    self.schedule_fan_running_for(min(self.time_multiplier * light_time, self.max_fan_time))
 
-                    self.fan.properties["on"] = True
-                    self.properties.access("fan_will_be_powered_off_at").receive(base + min(
-                        self.time_multiplier * light_time,
-                        self.max_fan_time
-                    ))
+    def schedule_fan_running_for(self, time):
+        if self.properties["fan_will_be_powered_off_at"]:
+            base = self.properties["fan_will_be_powered_off_at"]
+        else:
+            base = datetime.now()
+
+        self.fan.properties["on"] = True
+        self.properties.access("fan_will_be_powered_off_at").receive(base + time)
 
     def _power_fan_off_thread(self):
         while True:
