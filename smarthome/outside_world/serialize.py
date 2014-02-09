@@ -1,24 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import datetime
-import json
+import themyutils.json
 
 
-class SmarthomeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.isoformat()
-
-        try:
-            return super(SmarthomeEncoder, self).default(obj)
-        except TypeError:
-            return repr(obj)
-
-
-def serialize(obj):
-    return SmarthomeEncoder().encode(obj)
+def serialize(o):
+    return themyutils.json.dumps(o)
 
 
 def unserialize(s):
-    return json.loads(s)
+    return themyutils.json.loads(s)
