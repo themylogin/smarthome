@@ -2,7 +2,6 @@
 import logging
 from lxml import etree
 import os
-from wsgiref.simple_server import make_server
 
 from themylog.client import setup_logging_handler
 
@@ -25,8 +24,7 @@ dispatcher = Dispatcher()
 dispatcher.add_subscriber(ThemylogPublisher())
 
 web_application = WebApplication(dispatcher)
-dispatcher.add_subscriber(web_application)
-start_thread(make_server("", 8000, web_application).serve_forever, "web")
+start_thread(web_application.serve_forever, "web")
 
 config = etree.parse(open(os.path.join(os.path.dirname(__file__), "../config.xml")))
 create_objects(config, dispatcher)
