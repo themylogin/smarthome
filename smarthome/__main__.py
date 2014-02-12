@@ -12,8 +12,6 @@ from smarthome.config_parser.objects import create_objects
 from smarthome.config_parser.events import bind_events
 from smarthome.config_parser.keep import keep_properties
 from smarthome.config_parser.policies import apply_policies
-# from outside_world.amqp_publisher import AmqpPublisher
-# from outside_world.sql_publisher import SqlPublisher
 from smarthome.outside_world.themylog_publisher import ThemylogPublisher
 from smarthome.outside_world.web_application import WebApplication
 

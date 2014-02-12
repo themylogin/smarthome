@@ -58,10 +58,6 @@ class Dispatcher(object):
                 if hasattr(subscriber, "receive_event"):
                     subscriber.receive_event(source.name, name, kwargs)
 
-                if "explanation" in kwargs:
-                    if hasattr(subscriber, "receive_news"):
-                        subscriber.receive_news(source.name, name, kwargs["explanation"])
-
             for handler, policy, kwargs_filter in self.event_connections[source.name][name]:
                 if policy and not policy():
                     continue

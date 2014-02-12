@@ -3,5 +3,5 @@ from __future__ import absolute_import, unicode_literals
 
 
 class Subscriber(object):
-    def receive_event(self, id, datetime, source_name, event_name, kwargs):
+    def receive_event(self, source_name, event_name, kwargs):
         pass
