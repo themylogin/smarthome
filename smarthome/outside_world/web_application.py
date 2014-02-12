@@ -21,19 +21,17 @@ class WebApplication(Subscriber):
         ])
 
         self.gevent = None
-        self.async = None
+        self.properties_asyncs = set()
 
     def receive_event(self, source_name, event_name, kwargs):
-        if self.async:
-            self.async.send()
+        for async in self.properties_asyncs.copy():
+            async.send()
 
     def serve_forever(self):
         import gevent
         from geventwebsocket.handler import WebSocketHandler
 
         self.gevent = gevent
-        self.async = gevent.get_hub().loop.async()
-
         return gevent.pywsgi.WSGIServer(("", 8000), self._wsgi_app, handler_class=WebSocketHandler).serve_forever()
 
     def _wsgi_app(self, environ, start_response):
@@ -48,16 +46,22 @@ class WebApplication(Subscriber):
 
     def execute_show_properties(self, request):
         if "wsgi.websocket" in request.environ:
-            ws = request.environ["wsgi.websocket"]
+            async = self.gevent.get_hub().loop.async()
+            self.properties_asyncs.add(async)
 
-            last_message = None
-            while True:
-                message = serialize(self._get_properties())
-                if message != last_message:
-                    last_message = message
-                    ws.send(message)
+            try:
+                ws = request.environ["wsgi.websocket"]
+                
+                last_message = None
+                while True:
+                    message = serialize(self._get_properties())
+                    if message != last_message:
+                        last_message = message
+                        ws.send(message)
 
-                self.gevent.get_hub().wait(self.async)
+                    self.gevent.get_hub().wait(async)
+            finally:
+                self.properties_asyncs.remove(async)
         else:
             return Response(serialize(self._get_properties()), mimetype="application/json")
 
