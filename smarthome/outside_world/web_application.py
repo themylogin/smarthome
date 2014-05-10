@@ -51,7 +51,7 @@ class WebApplication(Subscriber):
 
             try:
                 ws = request.environ["wsgi.websocket"]
-                
+
                 last_message = None
                 while True:
                     message = serialize(self._get_properties())

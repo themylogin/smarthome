@@ -37,7 +37,9 @@ class Dispatcher(object):
         if explain_change_events:
             self.explain_event(owner, "%s changed" % name, lambda **kwargs: explainer(kwargs["value"]))
 
-    def connect_event(self, source, name, handler, policy=None, kwargs_filter={}):
+    def connect_event(self, source, name, handler, policy=None, kwargs_filter=None):
+        if kwargs_filter is None:
+            kwargs_filter = {}
         self.event_connections[source.name][name].append((handler, policy, kwargs_filter))
 
     def receive_event(self, source, name, **kwargs):
