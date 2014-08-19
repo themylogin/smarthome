@@ -54,7 +54,8 @@
     <!-- Умная ванная -->
     <object name="bathroom_door" title="Дверь в ванную" class="devices.door" bit="LPT1.inputs[PaperOut]" />
     <object name="bathroom_loudspeakers" class="devices.alsa_output" ssh="mediacenter" output_name="Master" />
-    <object name="bathroom_led_strip" class="devices.led_strip" title="Светодиодная лента в ванной" path="/dev/ttyS0" />
+    <object name="bathroom_loudspeakers_volume_control" class="devices.alsa_output" ssh="mediacenter" output_name="Line" />
+    <object name="bathroom_led_strip" class="devices.led_strip" title="Светодиодная лента в ванной" path="/dev/ttyS5" />
     <object name="bathroom_remote_keyboard" class="interfaces.evdev_input" path="/dev/input/by-id/usb-HJXKJ_USB_Device-event-kbd" />
     <object name="bathroom_remote_mouse" class="interfaces.evdev_input" path="/dev/input/by-id/usb-HJXKJ_USB_Device-if01-event-mouse" />
     <!-- Включать свет при входе, если только не горит светодиодная лента -->
@@ -90,10 +91,10 @@
     </on>
     <!-- Пульт в ванной: громкость -->
     <on object="bathroom_remote_mouse" event="KEY_VOLUMEDOWN DOWN">
-        <call object="bathroom_loudspeakers" method="decrease_volume" steps="2" />
+        <call object="bathroom_loudspeakers_volume_control" method="decrease_volume" steps="1" />
     </on>
     <on object="bathroom_remote_mouse" event="KEY_VOLUMEUP DOWN">
-        <call object="bathroom_loudspeakers" method="increase_volume" steps="2" />
+        <call object="bathroom_loudspeakers_volume_control" method="increase_volume" steps="1" />
     </on>
     <!-- Вентилятор в ванной -->
     <object name="bathroom_fan_manager" class="services.bathroom_fan_manager" light="bathroom_light" fan="bathroom_fan" />
