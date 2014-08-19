@@ -54,10 +54,10 @@
     <!-- Умная ванная -->
     <object name="bathroom_door" title="Дверь в ванную" class="devices.door" bit="LPT1.inputs[PaperOut]" />
     <object name="bathroom_loudspeakers" class="devices.alsa_output" ssh="mediacenter" output_name="Master" />
-    <object name="bathroom_loudspeakers_volume_control" class="devices.alsa_output" ssh="mediacenter" output_name="Line" />
+    <object name="bathroom_loudspeakers_volume_control" class="devices.alsa_output" ssh="mediacenter" output_name="Master" />
     <object name="bathroom_led_strip" class="devices.led_strip" title="Светодиодная лента в ванной" path="/dev/ttyS5" />
-    <object name="bathroom_remote_keyboard" class="interfaces.evdev_input" path="/dev/input/by-id/usb-HJXKJ_USB_Device-event-kbd" />
-    <object name="bathroom_remote_mouse" class="interfaces.evdev_input" path="/dev/input/by-id/usb-HJXKJ_USB_Device-if01-event-mouse" />
+    <object name="bathroom_remote_keyboard" class="interfaces.evdev_input" path="/dev/input/by-id/usb-MemsArt_MA144_RF_Controller-event-kbd" />
+    <object name="bathroom_remote_mouse" class="interfaces.evdev_input" path="/dev/input/by-id/usb-MemsArt_MA144_RF_Controller-if01-event-mouse" />
     <!-- Включать свет при входе, если только не горит светодиодная лента -->
     <policy condition="not bathroom_led_strip.on">
         <on object="bathroom_door" event="opened">
@@ -73,14 +73,14 @@
         <keep object="bathroom_loudspeakers" property="on" value="(bathroom_light.on or bathroom_led_strip.on) and not bathroom_door.open" />
     </policy>
     <!-- Пульт в ванной -->
-    <on object="bathroom_remote_keyboard" event="KEY_HOME DOWN">
-        <call object="bathroom_led_strip" method="next_generator" />
-    </on>
-    <on object="bathroom_remote_mouse" event="KEY_POWER DOWN">
+    <on object="bathroom_remote_mouse" event="BTN_MOUSE DOWN">
         <set object="bathroom_light" property="on" value="not bathroom_light.on" />
     </on>
+    <on object="bathroom_remote_mouse" event="BTN_RIGHT DOWN">
+        <call object="bathroom_led_strip" method="next_generator" />
+    </on>
     <!-- Пульт в ванной: музыка -->
-    <on object="bathroom_remote_mouse" event="BTN_MOUSE DOWN">
+    <on object="bathroom_remote_keyboard" event="KEY_ENTER DOWN">
         <call object="mediacenter" method="execute_command" command="mpc toggle" />
     </on>
     <on object="bathroom_remote_keyboard" event="KEY_LEFT DOWN">
@@ -90,11 +90,11 @@
         <call object="mediacenter" method="execute_command" command="mpc next" />
     </on>
     <!-- Пульт в ванной: громкость -->
-    <on object="bathroom_remote_mouse" event="KEY_VOLUMEDOWN DOWN">
-        <call object="bathroom_loudspeakers_volume_control" method="decrease_volume" steps="1" />
-    </on>
-    <on object="bathroom_remote_mouse" event="KEY_VOLUMEUP DOWN">
+    <on object="bathroom_remote_keyboard" event="KEY_UP DOWN">
         <call object="bathroom_loudspeakers_volume_control" method="increase_volume" steps="1" />
+    </on>
+    <on object="bathroom_remote_keyboard" event="KEY_DOWN DOWN">
+        <call object="bathroom_loudspeakers_volume_control" method="decrease_volume" steps="1" />
     </on>
     <!-- Вентилятор в ванной -->
     <object name="bathroom_fan_manager" class="services.bathroom_fan_manager" light="bathroom_light" fan="bathroom_fan" />
