@@ -3,7 +3,7 @@
     <object name="LPT1" class="interfaces.parallel_port"/>
 
     <!-- Осветительная сеть -->
-    <object name="lighting_box" class="interfaces.serial_bit_vector" device_mask="/dev/ttyUSB*" bits_number="8" />
+    <object name="lighting_box" class="interfaces.serial_bit_vector" device_mask="/dev/ttyS4" bits_number="8" />
     <object name="corridor_light"          title="в коридоре"          class="devices.light"         bit="lighting_box[0]" />
     <object name="balcony_light"           title="на балконе"          class="devices.light"         bit="lighting_box[1]" />
     <object name="room_center_light"       title="в комнате"           class="devices.light"         bit="lighting_box[2]" />
