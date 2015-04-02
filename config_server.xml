@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<smarthome>
+    <objects>
+        <server_lpt class="devices.diy.parallel_port" />
+
+        <bathroom_door class="constructions.door" property="server_lpt.PaperOut" />
+
+        <lighting_box class="devices.diy.serial_bit_vector" device="/dev/ttyS5" baudrate="9600" length="8" />
+        <corridor_light             class="devices.generic.on_off_device" property="lighting_box.bit0" />
+        <balcony_light              class="devices.generic.on_off_device" property="lighting_box.bit1" />
+        <room_recreation_light      class="devices.generic.on_off_device" property="lighting_box.bit2" />
+        <bathroom_light             class="devices.generic.on_off_device" property="lighting_box.bit3" />
+        <kitchen_light              class="devices.generic.on_off_device" property="lighting_box.bit4" />
+        <kitchen_work_zone_light    class="devices.generic.on_off_device" property="lighting_box.bit5" />
+        <room_work_light            class="devices.generic.on_off_device" property="lighting_box.bit6" />
+        <bathroom_fan               class="devices.generic.on_off_device" property="lighting_box.bit7" />
+
+        <hall_loudspeakers class="devices.multimedia.alsa_sound_player" device="default" />
+        <hall_speech_synthesizer class="servants.speech_synthesizer" sound_player="hall_loudspeakers" />
+    </objects>
+</smarthome>

@@ -1,0 +1,63 @@
+.smarthome-object
+{
+    position: absolute;
+} 
+
+.pad-connection
+{
+    border: 2px solid #000;
+    cursor: pointer;
+    z-index: 9000;
+}
+
+.GenericObject
+{
+    background: #cccccc;
+    border: 1px solid #000;
+}
+    .GenericObject h1
+    {
+        margin: 0;
+        font-size: inherit;
+    }
+
+    .GenericObject td
+    {
+        padding: 0;
+    }
+    .GenericObject td:not(:last-child)
+    {
+        padding-right: 5px;
+    }
+
+        .GenericObject td.currentValue
+        {
+            font-family: monospace;
+            font-size: 12px;
+            padding-top: 2px;
+        }
+
+            .GenericObject td.currentValue.boolean
+            {
+                cursor: pointer;
+            }
+
+    .GenericObject .pad
+    {
+        border: 4px solid #ccc;
+        background: #eee;
+
+        display: inline-block;
+        padding: 1px 2px;
+        margin-right: 2px;
+
+        cursor: pointer;
+    }
+        .GenericObject .pad.input
+        {
+            border-style: inset;
+        }
+        .GenericObject .pad.output
+        {
+            border-style: outset;
+        }

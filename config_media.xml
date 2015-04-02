@@ -1,0 +1,12 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<smarthome>
+    <objects>
+        <projector class="devices.multimedia.acer_h6510bd" device="/dev/ttyS0" />
+        <projector_smooth class="devices.generic.smooth_on_off_device" property="projector.on"
+                          off_delay="10" off_delay_format="Проектор будет выключен через: %d" />
+
+        <nad class="devices.multimedia.nad_c355bee" device="/dev/ttyUSB*, idVendor=1a86, idProduct=7523" />
+
+        <led_music_controller class="devices.light.rgb_led_music_controller" />
+    </objects>
+</smarthome>

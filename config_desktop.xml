@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<smarthome>
+    <objects>
+        <desktop_lpt class="devices.diy.parallel_port" />
+
+        <desktop_screens        class="devices.generic.on_off_device" property="desktop_lpt.Data0" invert="True" />
+        <desktop_screens_smooth class="devices.generic.smooth_on_off_device" property="desktop_screens.on"
+                                off_delay="10" off_delay_format="Мониторы будут выключены через: %d" />
+        <desktop_light          class="devices.generic.on_off_device" property="desktop_lpt.Data1" invert="True" />
+
+        <desktop_nucleo         class="devices.diy.shared_serial_port" device="/dev/ttyACM*, serial=066EFF494956805087151128" baudrate="38400" />
+
+        <desktop_tabletop_led_strip class="devices.diy.nucleo_rgb_led" nucleo="desktop_nucleo" number="0" />
+
+        <hdmi_matrix class="devices.multimedia.monoprice_hdmi_4x4_matrix" device="/dev/ttyS0" />
+    </objects>
+</smarthome>

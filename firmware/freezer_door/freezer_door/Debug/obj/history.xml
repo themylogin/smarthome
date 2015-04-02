@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -c -DSTM32F103RB -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -IZ:\WWW\apps\smarthome\firmware\stm_lib -IZ:\WWW\apps\smarthome -IZ:\WWW\apps\smarthome\firmware\cmsis_boot -IZ:\WWW\apps\smarthome\firmware\cmsis -IZ:\WWW\apps\smarthome\firmware\stm_lib\inc -IZ:\WWW\apps\smarthome\firmware">
+      <target file="stm32f10x_rcc.o" lastModified="14512a13e1c">
+         <source file="..\..\..\stm_lib\src\stm32f10x_rcc.c" lastModified="145129c90df"/>
+      </target>
+      <target file="startup_stm32f10x_md.o" lastModified="14512a131d9">
+         <source file="..\..\..\cmsis_boot\startup\startup_stm32f10x_md.c" lastModified="145129c7aad"/>
+      </target>
+      <target file="system_stm32f10x.o" lastModified="14512a13109">
+         <source file="..\..\..\cmsis_boot\system_stm32f10x.c" lastModified="145129c7d91"/>
+      </target>
+      <target file="main.o" lastModified="14512b1c62f">
+         <source file="..\..\..\main.c" lastModified="14512b0f4db"/>
+      </target>
+      <target file="stm32f10x_gpio.o" lastModified="14512a13520">
+         <source file="..\..\..\stm_lib\src\stm32f10x_gpio.c" lastModified="145129c965d"/>
+      </target>
+   </processor>
+</history>

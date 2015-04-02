@@ -42,4 +42,4 @@ nbproject
 .dep.inc
 
 # Data files
-sound/speech_synthesizer
+data/sound/speech_synthesizer
