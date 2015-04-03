@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 import functools
 
-from smarthome.architecture.object.proxy import LocalObject
+from smarthome.architecture.object.proxy import ProxyObject, LocalObject
 
 logger = logging.getLogger(__name__)
 
@@ -27,18 +27,27 @@ class EventTransceiver(object):
     def _be_observer(self, event, *args):
         args = list(args)
 
-        if event in ["object_property_changed", "object_pad_connected", "object_pad_disconnected"]:
-            if not isinstance(args[0], LocalObject):
+        local_only_events = {"object_property_changed": 0,
+                             "object_pad_connected": 2,
+                             "object_pad_disconnected": 2,
+                             "object_pad_value": 2}
+        if event in local_only_events:
+            if not isinstance(args[local_only_events[event]], LocalObject):
                 return
 
-        if event == "object_property_changed":
-            args[0] = args[0]._name
+        args = map(self._serialize_arg, args)
 
-        logger.debug("Notifying everybody of event %s: %r", event, args)
+        logger.getChild(event).debug("Notifying: %r", args)
         self.web_server.notify_my_event(event, args)
 
+    def _serialize_arg(self, arg):
+        if isinstance(arg, ProxyObject):
+            return arg._name
+
+        return arg
+
     def receive_remote_event(self, event, args):
-        logger.debug("Received remote event %s: %r", event, args)
+        logger.getChild(event).debug("Received: %r", args)
 
         if event == "exported_promise_resolved":
             self.imported_promises_manager.on_deferred_resolve(args[0], args[1], *args[2], **args[3])

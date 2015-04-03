@@ -230,8 +230,9 @@ class WebServer(object):
         except self.WebSocketError:
             pass
         finally:
+            self.errors_change_waiters.remove(waiter)
             self.properties_change_waiters.remove(waiter)
-            self.pad_connection_change_waiters.append(waiter)
+            self.pad_connection_change_waiters.remove(waiter)
 
             if not ws.closed:
                 ws.close()

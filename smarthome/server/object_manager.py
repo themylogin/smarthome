@@ -105,10 +105,16 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                                 observer(old_value, new_value)
 
     def on_object_pad_connected(self, src_object, src_pad, dst_object, dst_pad):
-        self.notify_object_pad_connected(src_object, src_pad, dst_object, dst_pad)
+        if isinstance(self.objects[dst_object], RemoteObject):
+            self.objects[dst_object]._incoming_pad_connections[dst_pad].add((src_object, src_pad))
+
+        self.notify_object_pad_connected(self.objects[src_object], src_pad, self.objects[dst_object], dst_pad)
 
     def on_object_pad_disconnected(self, src_object, src_pad, dst_object, dst_pad):
-        self.notify_object_pad_disconnected(src_object, src_pad, dst_object, dst_pad)
+        if isinstance(self.objects[dst_object], RemoteObject):
+            self.objects[dst_object]._incoming_pad_connections[dst_pad].remove((src_object, src_pad))
+
+        self.notify_object_pad_disconnected(self.objects[src_object], src_pad, self.objects[dst_object], dst_pad)
 
     def on_object_output_pad_value(self, object_name, pad_name, value):
         for object in self.objects.itervalues():
@@ -117,8 +123,9 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                     if (object_name, pad_name) in connections:
                         self.worker_pool.run_task(functools.partial(self._write_object_pad, object._name, pad, value))
 
-        if isinstance(self.objects[object_name], LocalObject):
-            self.notify_object_pad_value(object_name, pad_name, value)
+        object = self.objects[object_name]
+        if isinstance(object, LocalObject):
+            self.notify_object_pad_value(object, pad_name, value)
 
     def _write_object_pad(self, name, pad, value):
         try:

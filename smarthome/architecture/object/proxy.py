@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+from collections import defaultdict
 import functools
 import logging
 import sys
@@ -136,7 +137,8 @@ class RemoteObject(ProxyObject):
         super(RemoteObject, self).__init__(name)
         self._inspection = description["inspection"]
         self._properties_values = description["properties_values"]
-        self._incoming_pad_connections = description["incoming_pad_connections"]
+        self._incoming_pad_connections = defaultdict(set, map(lambda (k, v): (k, set(v)),
+                                                              description["incoming_pad_connections"]))
         self._peer_name = peer_name
         self._object_manager = object_manager
         self._peers_manager = self._object_manager.peers_manager
