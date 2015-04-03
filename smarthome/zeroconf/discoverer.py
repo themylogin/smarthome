@@ -67,7 +67,8 @@ class ServiceDiscoverer(object):
             address = ipaddress.ip_address(address)
             netloc = "%s:%d" % ("[%s]" % address if address.version == 6 else "%s" % address, port)
             logger.debug("Resolved service '%s' at %s", name, netloc)
-            self.on_resolved(Service(name, "http://%s" % netloc))
+            if address.version == 4:
+                self.on_resolved(Service(name, "http://%s" % netloc))
 
     def _on_error(self, error_message):
         logger.error("Unable to resolve service: %s", error_message)
