@@ -15,11 +15,12 @@ from themyutils.threading import start_daemon_thread
 
 from smarthome.architecture.deferred import Deferred
 from smarthome.architecture.object.args.bag import ArgsBag
+from smarthome.architecture.object.utils.timer import Timer
 
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"Object", b"method", b"prop", b"on_prop_changed", b"input_pad", b"output_pad"]
+__all__ = [b"Object", b"method", b"signal_handler", b"prop", b"on_prop_changed", b"input_pad", b"output_pad"]
 
 
 class Object(object):
@@ -33,6 +34,17 @@ class Object(object):
         self._name = name
         self.args = ArgsBag(args, object_manager)
         self.__object_manager = object_manager
+
+        for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
+            if hasattr(meth, "smarthome_signal_handler"):
+                object_or_objects = self.args[meth.smarthome_signal_handler_args_bag_object_key]
+                signal = meth.smarthome_signal_handler_signal
+                if isinstance(object_or_objects, list):
+                    for object in object_or_objects:
+                        self.connect_to_signal(object, signal, functools.partial(self._call_with_object,
+                                                                                 meth, object._name))
+                else:
+                    self.connect_to_signal(object_or_objects, signal, meth)
 
         self._properties = {}
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
@@ -78,11 +90,14 @@ class Object(object):
 
         self.logger = logger.getChild(self._name)
 
-    def _create_property(self, name):
+    def _call_with_object(self, meth, object_name, *args, **kwargs):
+        return meth(self.__object_manager.objects[object_name], *args, **kwargs)
+
+    def _create_property(self, name, value=None):
         self._properties[name] = {"readable": False,
                                   "writable": False,
                                   "toggleable": False,
-                                  "value": None}
+                                  "value": value}
 
     def _set_property_getter(self, name, getter):
         self._properties[name]["readable"] = True
@@ -364,10 +379,23 @@ class Object(object):
     def thread(self, *args, **kwargs):
         return start_daemon_thread(*args, **kwargs)
 
+    def timer(self, name, timeout, callback):
+        return Timer(self.__object_manager.worker_pool, self.logger.getChild(name), timeout, callback)
+
 
 def method(meth):
     meth.smarthome_method = True
     return meth
+
+
+def signal_handler(args_bag_object_key, signal):
+    def decorator(meth):
+        meth.smarthome_signal_handler = True
+        meth.smarthome_signal_handler_args_bag_object_key = args_bag_object_key
+        meth.smarthome_signal_handler_signal = signal
+        return meth
+
+    return decorator
 
 
 def prop(*args, **kwargs):

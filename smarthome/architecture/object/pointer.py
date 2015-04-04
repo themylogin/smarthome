@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"ObjectPointer", b"ObjectPointerList", b"PropertyPointer"]
+__all__ = [b"ObjectPointer", b"ObjectPointerList", b"PropertyPointer", b"PropertyPointerList"]
 
 
 class ObjectPointer(object):
@@ -21,3 +21,7 @@ class PropertyPointer(object):
     def __init__(self, object_pointer, name):
         self.object_pointer = object_pointer
         self.name = name
+
+
+class PropertyPointerList(list):
+    pass

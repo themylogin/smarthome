@@ -82,9 +82,9 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
 
     def on_object_signal_emitted(self, object_name, signal_name, *args, **kwargs):
         for callable in self.object_signal_connections[object_name][signal_name]:
-            callable(*args, **kwargs)
+            self.worker_pool.run_task(functools.partial(callable, *args, **kwargs))
 
-        self.notify_object_signal_emitted(object_name, signal_name, args, kwargs)
+        self.notify_object_signal_emitted(self.objects[object_name], signal_name, args, kwargs)
 
     def on_object_property_changed(self, object_name, property_name, old_value, new_value):
         object = self.objects[object_name]
@@ -102,7 +102,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                         if (property_pointer.object_pointer.name == object_name and
                             property_pointer.name == property_name):
                             for observer in notified_object._property_change_observers[args_bag_property_key]:
-                                observer(old_value, new_value)
+                                self.worker_pool.run_task(functools.partial(observer, old_value, new_value))
 
     def on_object_pad_connected(self, src_object, src_pad, dst_object, dst_pad):
         if isinstance(self.objects[dst_object], RemoteObject):

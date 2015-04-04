@@ -42,4 +42,5 @@ nbproject
 .dep.inc
 
 # Data files
+data/database.json
 data/sound/speech_synthesizer

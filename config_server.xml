@@ -3,7 +3,16 @@
     <objects>
         <server_lpt class="devices.diy.parallel_port" />
 
-        <bathroom_door class="constructions.door" property="server_lpt.PaperOut" />
+        <front_door class="household.door" property="server_lpt.Busy" />
+        <themylogin_keys_holder class="household.keys_holder" property="server_lpt.Acknowledge" />
+        <owner_watcher class="watchers.owner_presence_watcher"
+                       front_door="front_door" keys_holders="themylogin_keys_holder"
+                       speech_synthesizer="hall_speech_synthesizer"
+                       everybody_leaving_message="Умный дом опустел. Запускается процесс самоликвидации.
+                                                  Десять. Девять. Восемь. Семь. Шесть. Пять. Четыре. Три. Два. Один."
+                       everybody_leaving_canceled_message="Самоликвидация остановлена" />
+
+        <bathroom_door class="household.door" property="server_lpt.PaperOut" />
 
         <lighting_box class="devices.diy.serial_bit_vector" device="/dev/ttyS5" baudrate="9600" length="8" />
         <corridor_light             class="devices.generic.on_off_device" property="lighting_box.bit0" />

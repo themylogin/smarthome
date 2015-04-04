@@ -27,7 +27,8 @@ class EventTransceiver(object):
     def _be_observer(self, event, *args):
         args = list(args)
 
-        local_only_events = {"object_property_changed": 0,
+        local_only_events = {"object_signal_emitted": 0,
+                             "object_property_changed": 0,
                              "object_pad_connected": 2,
                              "object_pad_disconnected": 2,
                              "object_pad_value": 2}

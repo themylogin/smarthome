@@ -50,6 +50,7 @@ class WorkerPool(Observable("task_observer", ["task_complete"])):
                 else:
                     result = ValueResult(result)
             except:
+                logger.info("Exception in worker_pool", exc_info=True)
                 result = ExceptionResult(sys.exc_info())
             self.notify_task_complete(task_id, result)
 
