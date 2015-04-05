@@ -13,6 +13,7 @@ import types
 
 from themyutils.threading import start_daemon_thread
 
+from smarthome.architecture.object.pointer import ObjectPointerList, PropertyPointerList
 from smarthome.architecture.deferred import Deferred
 from smarthome.architecture.object.args.bag import ArgsBag
 from smarthome.architecture.object.utils.timer import Timer
@@ -37,14 +38,15 @@ class Object(object):
 
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(meth, "smarthome_signal_handler"):
-                object_or_objects = self.args[meth.smarthome_signal_handler_args_bag_object_key]
+                raw_arg = self.args.args[meth.smarthome_signal_handler_args_bag_object_key]
                 signal = meth.smarthome_signal_handler_signal
-                if isinstance(object_or_objects, list):
-                    for object in object_or_objects:
-                        self.connect_to_signal(object, signal, functools.partial(self._call_with_object,
-                                                                                 meth, object._name))
+                if isinstance(raw_arg, ObjectPointerList):
+                    for object_pointer in raw_arg:
+                        self.__object_manager.connect_object_signal(object_pointer.name, signal,
+                                                                    functools.partial(self._call_with_object,
+                                                                                      meth, object_pointer.name))
                 else:
-                    self.connect_to_signal(object_or_objects, signal, meth)
+                    self.__object_manager.connect_object_signal(raw_arg.name, signal, meth)
 
         self._properties = {}
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
@@ -61,11 +63,41 @@ class Object(object):
                 if hasattr(meth, "smarthome_property_toggleable"):
                     self._set_property_toggleable(property_name)
 
-        self._property_change_observers = defaultdict(list)
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(meth, "smarthome_property_change_observer"):
-                self._property_change_observers[meth.smarthome_property_change_observer_args_bag_property_key].append(
-                    self._wrap_property_change_observer(meth))
+                raw_arg = self.args.args[meth.smarthome_property_change_observer_args_bag_property_key]
+                if isinstance(raw_arg, PropertyPointerList):
+                    if meth.smarthome_property_change_observer_arg_count == 4:
+                        needs_old_value = False
+                    elif meth.smarthome_property_change_observer_arg_count == 5:
+                        needs_old_value = True
+                    else:
+                        raise TypeError("Property list change observer should take exactly three or four arguments: "
+                                        "object, property_name, value[, old_value]")
+                    for property_pointer in raw_arg:
+                        self.__object_manager.add_object_property_change_observer(
+                            property_pointer.object_pointer.name,
+                            property_pointer.name,
+                            self._wrap_property_change_observer(
+                                functools.partial(functools.partial(self._call_with_object, meth,
+                                                                    property_pointer.object_pointer.name),
+                                                  property_pointer.name),
+                                needs_old_value
+                            )
+                        )
+                else:
+                    if meth.smarthome_property_change_observer_arg_count == 2:
+                        needs_old_value = False
+                    elif meth.smarthome_property_change_observer_arg_count == 3:
+                        needs_old_value = True
+                    else:
+                        raise TypeError("Property change observer should take exactly one or two arguments: "
+                                        "value[, old_value]")
+                    self.__object_manager.add_object_property_change_observer(
+                        raw_arg.object_pointer.name,
+                        raw_arg.name,
+                        self._wrap_property_change_observer(meth, needs_old_value)
+                    )
 
         self._methods = {name
                          for name, meth in inspect.getmembers(self, predicate=inspect.ismethod)
@@ -132,8 +164,8 @@ class Object(object):
                 for attr in dir(meth)
                 if attr.startswith(attr_prefix)}
 
-    def _wrap_property_change_observer(self, meth):
-        if meth.smarthome_property_change_observer_needs_old_value:
+    def _wrap_property_change_observer(self, meth, needs_old_value):
+        if needs_old_value:
             def wrapped(old_value, new_value):
                 return meth(new_value, old_value)
             return wrapped
@@ -280,9 +312,6 @@ class Object(object):
         else:
             self.__object_manager.on_object_error(self._name, {"property_query_timeout": name})
             raise ValueError("Timeout waiting for queried property value %s" % name)
-
-    def connect_to_signal(self, object, signal, callable):
-        self.__object_manager.connect_object_signal(object._name, signal, callable)
 
     def emit_signal(self, signal, *args, **kwargs):
         self.__object_manager.on_object_signal_emitted(self._name, signal, *args, **kwargs)
@@ -451,12 +480,9 @@ def _do_prop_attrs(meth, prefix, attrs):
 
 def on_prop_changed(args_bag_property_key):
     def decorator(meth):
-        if meth.func_code.co_argcount not in [2, 3]:
-            raise TypeError("Property change observer should take exactly one or two arguments: value[, old_value]")
-
         meth.smarthome_property_change_observer = True
         meth.smarthome_property_change_observer_args_bag_property_key = args_bag_property_key
-        meth.smarthome_property_change_observer_needs_old_value = meth.func_code.co_argcount == 3
+        meth.smarthome_property_change_observer_arg_count = meth.func_code.co_argcount
         return meth
 
     return decorator

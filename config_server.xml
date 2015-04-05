@@ -3,17 +3,7 @@
     <objects>
         <server_lpt class="devices.diy.parallel_port" />
 
-        <front_door class="household.door" property="server_lpt.Busy" />
-        <themylogin_keys_holder class="household.keys_holder" property="server_lpt.Acknowledge" />
-        <owner_watcher class="watchers.owner_presence_watcher"
-                       front_door="front_door" keys_holders="themylogin_keys_holder"
-                       speech_synthesizer="hall_speech_synthesizer"
-                       everybody_leaving_message="Умный дом опустел. Запускается процесс самоликвидации.
-                                                  Десять. Девять. Восемь. Семь. Шесть. Пять. Четыре. Три. Два. Один."
-                       everybody_leaving_canceled_message="Самоликвидация остановлена" />
-
-        <bathroom_door class="household.door" property="server_lpt.PaperOut" />
-
+        <!-- Освещение -->
         <lighting_box class="devices.diy.serial_bit_vector" device="/dev/ttyS5" baudrate="9600" length="8" />
         <corridor_light             class="devices.generic.on_off_device" property="lighting_box.bit0" />
         <balcony_light              class="devices.generic.on_off_device" property="lighting_box.bit1" />
@@ -24,7 +14,26 @@
         <room_work_light            class="devices.generic.on_off_device" property="lighting_box.bit6" />
         <bathroom_fan               class="devices.generic.on_off_device" property="lighting_box.bit7" />
 
+        <!-- Прихожая -->
+        <front_door class="household.door" property="server_lpt.Busy" />
+        <themylogin_keys_holder class="household.keys_holder" property="server_lpt.Acknowledge" />
+        <owner_watcher class="watchers.owner_presence_watcher"
+                       front_door="front_door" keys_holders="themylogin_keys_holder"
+                       speech_synthesizer="hall_speech_synthesizer"
+                       everybody_leaving_message="Умный дом опустел. Запускается процесс самоликвидации.
+                                                  Десять. Девять. Восемь. Семь. Шесть. Пять. Четыре. Три. Два. Один."
+                       everybody_leaving_canceled_message="Самоликвидация остановлена" />
+
         <hall_loudspeakers class="devices.multimedia.alsa_sound_player" device="default" />
         <hall_speech_synthesizer class="servants.speech_synthesizer" sound_player="hall_loudspeakers" />
+
+        <!-- Ванная -->
+        <bathroom_door class="household.door" property="server_lpt.PaperOut" />
+
+        <!-- Группы электроприборов -->
+        <all_lightning_except_projector class="devices.generic.on_off_device_group"
+                                        properties="corridor_light.on, balcony_light.on, room_recreation_light.on,
+                                                    bathroom_light.on, kitchen_light.on, room_work_light.on,
+                                                    desktop_screens.on, desktop_light.on" />
     </objects>
 </smarthome>

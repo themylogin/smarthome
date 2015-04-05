@@ -32,6 +32,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
         self.objects_errors = defaultdict(lambda: None)
 
         self.object_signal_connections = defaultdict(lambda: defaultdict(list))
+        self.object_property_change_observers = defaultdict(lambda: defaultdict(list))
 
     def set_objects(self, objects):
         self.objects = {name: LocalObject(object)
@@ -86,6 +87,9 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
 
         self.notify_object_signal_emitted(self.objects[object_name], signal_name, args, kwargs)
 
+    def add_object_property_change_observer(self, object_name, property_name, callable):
+        self.object_property_change_observers[object_name][property_name].append(callable)
+
     def on_object_property_changed(self, object_name, property_name, old_value, new_value):
         object = self.objects[object_name]
 
@@ -94,15 +98,8 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
 
         self.notify_object_property_changed(object, property_name, old_value, new_value)
 
-        for notified_object in self.objects.itervalues():
-            if isinstance(notified_object, LocalObject):
-                notified_object = notified_object._object
-                for args_bag_property_key, property_pointer in notified_object.args.args.iteritems():
-                    if isinstance(property_pointer, PropertyPointer):
-                        if (property_pointer.object_pointer.name == object_name and
-                            property_pointer.name == property_name):
-                            for observer in notified_object._property_change_observers[args_bag_property_key]:
-                                self.worker_pool.run_task(functools.partial(observer, old_value, new_value))
+        for callable in self.object_property_change_observers[object_name][property_name]:
+            self.worker_pool.run_task(functools.partial(callable, old_value, new_value))
 
     def on_object_pad_connected(self, src_object, src_pad, dst_object, dst_pad):
         if isinstance(self.objects[dst_object], RemoteObject):
