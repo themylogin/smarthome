@@ -41,9 +41,10 @@ class Object(object):
     INIT_INTERVAL = 5
     POLL_INTERVAL = 0.01
 
-    def __init__(self, name, args, object_manager):
+    def __init__(self, name, args, datastore, object_manager):
         self._name = name
         self.args = ArgsBag(args, object_manager)
+        self.datastore = datastore
         self.__object_manager = object_manager
 
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):

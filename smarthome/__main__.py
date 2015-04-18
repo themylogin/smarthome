@@ -10,7 +10,7 @@ import os
 import platform
 import time
 
-from smarthome.architecture.object.pointer import ObjectPointer, ObjectPointerList, PropertyPointer
+from smarthome.architecture.object.datastore import Datastore
 from smarthome.common import DATA_DIR
 from smarthome.config.parser.objects import get_objects
 from smarthome.server.database import Database
@@ -60,7 +60,7 @@ peer_manager.event_transceiver = event_transceiver
 
 config = etree.parse(open(os.path.join(os.path.dirname(__file__), "../config_%s.xml" % my_name)))
 
-objects = {name: cls(name, args, object_manager)
+objects = {name: cls(name, args, Datastore(database, ("datastore", name)), object_manager)
            for name, (cls, args) in get_objects(config).iteritems()}
 object_manager.set_objects(objects)
 
