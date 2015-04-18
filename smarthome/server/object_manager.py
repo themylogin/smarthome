@@ -22,8 +22,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                     Observable("object_property_observer", ["object_property_changed"]),
                     Observable("object_pad_connection_observer", ["object_pad_connected", "object_pad_disconnected"]),
                     Observable("object_pad_value_observer", ["object_pad_value"])):
-    def __init__(self, database, peers_manager, worker_pool):
-        self.database = database
+    def __init__(self, peers_manager, worker_pool):
         self.peers_manager = peers_manager
         self.peers_manager.object_manager = self
 
