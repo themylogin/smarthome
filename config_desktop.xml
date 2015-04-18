@@ -1,5 +1,7 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <smarthome>
+    <themylog>tcp://192.168.0.1:46409</themylog>
+
     <objects>
         <desktop_lpt class="devices.diy.parallel_port" />
 

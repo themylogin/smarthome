@@ -13,11 +13,13 @@ import time
 from smarthome.architecture.object.datastore import Datastore
 from smarthome.common import DATA_DIR
 from smarthome.config.parser.objects import get_objects
+from smarthome.config.parser.themylog import get_themylog
 from smarthome.server.database import Database
 from smarthome.server.imported_promises_manager import ImportedPromisesManager
 from smarthome.server.exported_promises_manager import ExportedPromisesManager
 from smarthome.server.object_manager import ObjectManager
 from smarthome.server.peer_manager import PeerManager
+from smarthome.server.themylog_publisher import ThemylogPublisher
 from smarthome.server.web_server import WebServer
 from smarthome.server.web_server.event_transceiver import EventTransceiver
 from smarthome.server.worker_pool import WorkerPool
@@ -59,6 +61,12 @@ exported_promises_manager.add_exported_promises_observer(event_transceiver)
 peer_manager.event_transceiver = event_transceiver
 
 config = etree.parse(open(os.path.join(os.path.dirname(__file__), "../config_%s.xml" % my_name)))
+
+themylog = get_themylog(config)
+if themylog:
+    themylog_publisher = ThemylogPublisher(*themylog)
+    object_manager.add_object_signal_observer(themylog_publisher)
+    object_manager.add_object_property_observer(themylog_publisher)
 
 objects = {name: cls(name, args, Datastore(database, ("datastore", name)), object_manager)
            for name, (cls, args) in get_objects(config).iteritems()}

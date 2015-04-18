@@ -1,5 +1,7 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <smarthome>
+    <themylog>unix:///run/themylog/themylog.sock</themylog>
+
     <objects>
         <server_lpt class="devices.diy.parallel_port" />
 
