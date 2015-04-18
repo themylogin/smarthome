@@ -36,7 +36,7 @@
         <all_lightning_except_projector class="devices.generic.on_off_device_group"
                                         properties="corridor_light.on, balcony_light.on, room_recreation_light.on,
                                                     bathroom_light.on, kitchen_light.on, room_work_light.on,
-                                                    desktop_light.on" />
+                                                    desktop_screens.on, desktop_light.on" />
         <all_lightning class="devices.generic.on_off_device_group"
                        properties="all_lightning_except_projector.on, projector.on" />
 
@@ -47,7 +47,7 @@
              3 минуты погуглил и снова спать, а в 02:24 сработает таймер, то получится, что лёг спать в 02:04,
              хотя на самом деле в 02:10 -->
         <sleep_tracker class="watchers.expirable_hysteresis"
-                       expression="not (owner_watcher.anybody_at_home and not all_lightning_except_projector.on)"
+                       expression="not (owner_watcher.anybody_at_home and not all_lightning.on)"
 
                        false_to_true_signal="woke_up"
                        false_to_true_timeout="10"
