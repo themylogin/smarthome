@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 import functools
 import logging
 
+from smarthome.architecture.object.logic_expression import LogicExpression
 from smarthome.architecture.object.pointer import *
 from smarthome.architecture.object.proxy import UnavailableObject
 
@@ -32,6 +33,9 @@ class ArgsBag(object):
         if isinstance(value, PropertyPointerList):
             return _MutablePropertyPointerList(map(self._get_property, value),
                                                functools.partial(self._set_property_pointer_list_item, value))
+
+        if isinstance(value, LogicExpression):
+            return functools.partial(value.expression, self.object_manager)
 
         return value
 

@@ -13,6 +13,7 @@ import types
 
 from themyutils.threading import start_daemon_thread
 
+from smarthome.architecture.object.logic_expression import LogicExpression
 from smarthome.architecture.object.pointer import ObjectPointerList, PropertyPointerList
 from smarthome.architecture.deferred import Deferred
 from smarthome.architecture.object.args.bag import ArgsBag
@@ -21,7 +22,16 @@ from smarthome.architecture.object.utils.timer import Timer
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"Object", b"method", b"signal_handler", b"prop", b"on_prop_changed", b"input_pad", b"output_pad"]
+__all__ = [b"Object", b"method", b"signal_handler", b"prop", b"on_prop_changed", b"input_pad", b"output_pad",
+           b"PropertyHasNoValueException"]
+
+
+class _NoDefaultPropertyValue(object):
+    pass
+
+
+class PropertyHasNoValueException(Exception):
+    pass
 
 
 class Object(object):
@@ -85,6 +95,16 @@ class Object(object):
                                 needs_old_value
                             )
                         )
+                elif isinstance(raw_arg, LogicExpression):
+                    if meth.smarthome_property_change_observer_arg_count != 2:
+                        raise TypeError("Logic expression change observer should take exactly one argument: value")
+                    for property_pointer in raw_arg.properties_involved:
+                        self.__object_manager.add_object_property_change_observer(
+                            property_pointer.object_pointer.name,
+                            property_pointer.name,
+                            (lambda meth:
+                                 lambda old_value, new_value: meth(raw_arg.expression(self.__object_manager)))(meth)
+                        )
                 else:
                     if meth.smarthome_property_change_observer_arg_count == 2:
                         needs_old_value = False
@@ -125,11 +145,12 @@ class Object(object):
     def _call_with_object(self, meth, object_name, *args, **kwargs):
         return meth(self.__object_manager.objects[object_name], *args, **kwargs)
 
-    def _create_property(self, name, value=None):
+    def _create_property(self, name, value=_NoDefaultPropertyValue):
         self._properties[name] = {"readable": False,
                                   "writable": False,
                                   "toggleable": False,
-                                  "value": value}
+                                  "has_value": value != _NoDefaultPropertyValue,
+                                  "value": value if value != _NoDefaultPropertyValue else None}
 
     def _set_property_getter(self, name, getter):
         self._properties[name]["readable"] = True
@@ -182,6 +203,9 @@ class Object(object):
 
     def get_property(self, name):
         property = self._properties[name]
+
+        if not property["has_value"]:
+            raise PropertyHasNoValueException()
 
         if property["readable"]:
             if "get" in property :
@@ -283,8 +307,10 @@ class Object(object):
     def receive_property(self, name, value):
         property = self._properties[name]
 
+        had_value = property["has_value"]
         old_value = property["value"]
         if value != old_value:
+            property["has_value"] = True
             property["value"] = value
 
             if "query" in property:
@@ -292,7 +318,8 @@ class Object(object):
                     for event in property["query_events"]:
                         event.set()
 
-            self.__object_manager.on_object_property_changed(self._name, name, old_value, value)
+            if had_value:
+                self.__object_manager.on_object_property_changed(self._name, name, old_value, value)
 
     def query_and_wait_for_property(self, name):
         property = self._properties[name]
