@@ -41,26 +41,26 @@ class ExpirableHysteresis(Object):
         self.receive_property(self.args["false_property"], not value)
         self.receive_property(self.args["true_property"], value)
 
-        self.false_started_at = datetime.now() if not value else None
-        self.true_started_at = datetime.now() if value else None
+        self.datastore.set_default_value("false_started_at", datetime.now() if not value else None)
+        self.datastore.set_default_value("true_started_at", datetime.now() if value else None)
 
     def _set_true(self, at):
         if self.args["expression"]():
             self.receive_property(self.args["false_property"], False)
             self.receive_property(self.args["true_property"], True)
 
-            self.emit_signal(self.args["false_to_true_signal"], start=self.false_started_at, end=at)
+            self.emit_signal(self.args["false_to_true_signal"], start=self.datastore["false_started_at"], end=at)
 
-            self.true_started_at = at
+            self.datastore["true_started_at"] = at
 
     def _set_false(self, at):
         if not self.args["expression"]():
             self.receive_property(self.args["false_property"], True)
             self.receive_property(self.args["true_property"], False)
 
-            self.emit_signal(self.args["true_to_false_signal"], start=self.true_started_at, end=at)
+            self.emit_signal(self.args["true_to_false_signal"], start=self.datastore["true_started_at"], end=at)
 
-            self.false_started_at = at
+            self.datastore["false_started_at"] = at
 
     @on_prop_changed("expression")
     def on_expression_changed(self, value):
