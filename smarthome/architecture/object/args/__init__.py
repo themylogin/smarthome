@@ -8,13 +8,20 @@ logger = logging.getLogger(__name__)
 __all__ = [b"Arg"]
 
 
-class NoDefaultValue(object):
+class _NoDefaultValue(object):
     pass
 
 
+def _bool_parser(s):
+    return s.strip().lower() in ("1", "true", "yes")
+
+
 class Arg(object):
-    def __init__(self, type=type, default_value=NoDefaultValue):
+    def __init__(self, type, default_value=_NoDefaultValue):
+        if type is bool:
+            type = _bool_parser
+
         self.type = type
 
-        self.has_default_value = not isinstance(default_value, NoDefaultValue)
+        self.has_default_value = not isinstance(default_value, _NoDefaultValue)
         self.default_value = default_value

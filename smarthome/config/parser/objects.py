@@ -9,7 +9,7 @@ from smarthome.architecture.object import Object
 
 logger = logging.getLogger(__name__)
 
-__all__ = []
+__all__ = [b"get_objects"]
 
 
 def get_objects(xml):
