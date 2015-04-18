@@ -27,6 +27,7 @@ class SmoothOnOffDevice(Object):
                                                  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def init(self):
+        self.receive_property("on", self.args["property"])
         self._reset_timeout_data()
 
     def _reset_timeout_data(self):
