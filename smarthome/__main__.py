@@ -28,7 +28,9 @@ from themyutils.threading import start_daemon_thread
 GObject.threads_init()
 dbus.mainloop.glib.threads_init()
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s %(asctime)s [%(name)s] %(message)s")
+logging.getLogger("geventwebsocket.handler").setLevel(logging.INFO)
 logging.getLogger("smarthome.server.web_server.event_transceiver.object_pad_value").setLevel(logging.INFO)
+logging.getLogger("smarthome.zeroconf.discoverer").setLevel(logging.INFO)
 
 my_name = platform.node()
 
