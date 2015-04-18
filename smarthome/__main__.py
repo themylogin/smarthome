@@ -46,9 +46,9 @@ peer_manager = PeerManager(my_name, bus, imported_promises_manager)
 
 worker_pool = WorkerPool()
 
-object_manager = ObjectManager(peer_manager, worker_pool)
+object_manager = ObjectManager(database, peer_manager, worker_pool)
 
-web_server = WebServer("0.0.0.0", 46408, database, object_manager, exported_promises_manager)
+web_server = WebServer("0.0.0.0", 46408, object_manager, exported_promises_manager)
 
 event_transceiver = EventTransceiver(web_server, object_manager, imported_promises_manager, exported_promises_manager)
 object_manager.add_object_signal_observer(event_transceiver)

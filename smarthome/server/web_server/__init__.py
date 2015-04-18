@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 
 class WebServer(object):
-    def __init__(self, host, port, database, object_manager, exported_promises_manager):
+    def __init__(self, host, port, object_manager, exported_promises_manager):
         self.host = host
         self.port = port
-        self.database = database
         self.object_manager = object_manager
+        self.database = object_manager.database
         self.worker_pool = object_manager.worker_pool
         self.exported_promises_manager = exported_promises_manager
 
