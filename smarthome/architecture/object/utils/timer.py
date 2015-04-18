@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from datetime import datetime, timedelta
+import functools
 from threading import Lock
 import time
 
@@ -16,6 +17,7 @@ class Timer(object):
         self.callback = callback
 
         self.started = False
+        self.started_at = None
         self.callback_at = None
         self.lock = Lock()
 
@@ -26,6 +28,7 @@ class Timer(object):
 
             if not self.started:
                 self.started = True
+                self.started_at = datetime.now()
                 self.worker_pool.run_task(self._process)
 
     def stop(self):
@@ -44,7 +47,8 @@ class Timer(object):
                 if self.callback_at <= datetime.now():
                     self.logger.info("Timed out")
 
-                    self.worker_pool.run_task(self.callback)
+                    self.worker_pool.run_task(self.callback if self.callback.func_code.co_argcount == 0
+                                              else functools.partial(self.callback, self.started_at))
 
                     self._reset()
 
@@ -52,4 +56,5 @@ class Timer(object):
 
     def _reset(self):
         self.started = False
+        self.started_at = None
         self.callback_at = None
