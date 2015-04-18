@@ -217,34 +217,34 @@ class UnavailableObject(ProxyObject):
         return True
 
     def get_property(self, name):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def set_property(self, name, value):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def has_method(self, name):
         return True
 
     def get_method(self, name):
         def method(*args, **kwargs):
-            raise UnavailableObjectException()
+            raise UnavailableObjectException(self._name)
 
         return method
 
     def get_input_pad(self, name):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def get_output_pad(self, name):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def connect_to_pad(self, pad, src_object, src_pad):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def disconnect_from_pad(self, pad, src_object, src_pad):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def write_pad(self, name, value):
-        raise UnavailableObjectException()
+        raise UnavailableObjectException(self._name)
 
     def inspect(self):
         return {"class": "Unknown",
