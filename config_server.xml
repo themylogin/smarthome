@@ -16,6 +16,13 @@
         <room_work_light            class="devices.generic.on_off_device" property="lighting_box.bit6" />
         <bathroom_fan               class="devices.generic.on_off_device" property="lighting_box.bit7" />
 
+        <!-- Подъезд -->
+        <front_door_bell_button class="devices.generic.button" property="server_lpt.Error" released_state="True" />
+        <front_door_bell class="household.door_bell" sound_player="hall_loudspeakers"
+                         files="sound/door_bell/souvlaki1.wav, sound/door_bell/souvlaki2.wav,
+                                sound/door_bell/souvlaki3.wav, sound/door_bell/souvlaki4.wav"
+                         reset_sequence_timeout="10" />
+
         <!-- Прихожая -->
         <front_door class="household.door" property="server_lpt.Busy" />
         <themylogin_keys_holder class="household.keys_holder" property="server_lpt.Acknowledge" />
@@ -50,14 +57,24 @@
                        expression="not (owner_watcher.anybody_at_home and not all_lightning.on)"
 
                        false_to_true_signal="woke_up"
-                       false_to_true_timeout="10"
+                       false_to_true_timeout="1200"
                        false_to_true_interrupt_immediately="False"
 
                        true_to_false_signal="fall_asleep"
-                       true_to_false_timeout="10"
+                       true_to_false_timeout="1200"
                        true_to_false_interrupt_immediately="True"
 
                        false_property="sleeping"
                        true_property="conscious" />
     </objects>
+
+    <!-- Звонить в дверь -->
+    <on signal="front_door_bell_button.pressed">
+        <call method="front_door_bell.ring" />
+    </on>
+
+    <!-- Включать свет при входе в ванную -->
+    <on signal="bathroom_door.opened">
+        <set property="bathroom_light.on" value="True" />
+    </on>
 </smarthome>

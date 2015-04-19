@@ -13,6 +13,7 @@ import time
 from smarthome.architecture.object.datastore import Datastore
 from smarthome.common import DATA_DIR
 from smarthome.config.parser.objects import get_objects
+from smarthome.config.parser.on import setup_ons
 from smarthome.config.parser.themylog import get_themylog
 from smarthome.server.database import Database
 from smarthome.server.imported_promises_manager import ImportedPromisesManager
@@ -71,6 +72,8 @@ if themylog:
 objects = {name: cls(name, args, Datastore(database, ("datastore", name)), object_manager)
            for name, (cls, args) in get_objects(config).iteritems()}
 object_manager.set_objects(objects)
+
+setup_ons(config, object_manager)
 
 start_daemon_thread(web_server.serve_forever)
 
