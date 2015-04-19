@@ -34,7 +34,7 @@ class Datastore(object):
                 dd = dd[k]
 
             if key in dd:
-                return key
+                return dd[key]
             else:
                 raise KeyError(key)
 
