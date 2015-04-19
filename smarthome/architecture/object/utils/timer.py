@@ -47,7 +47,7 @@ class Timer(object):
                 if self.callback_at <= datetime.now():
                     self.logger.info("Timed out")
 
-                    self.worker_pool.run_task(self.callback if self.callback.func_code.co_argcount == 0
+                    self.worker_pool.run_task(self.callback if self.callback.func_code.co_argcount == 1
                                               else functools.partial(self.callback, self.started_at))
 
                     self._reset()
