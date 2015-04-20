@@ -16,6 +16,11 @@
         <room_work_light            class="devices.generic.on_off_device" property="lighting_box.bit6" />
         <bathroom_fan               class="devices.generic.on_off_device" property="lighting_box.bit7" />
 
+        <!-- Крыльцо -->
+        <intercom class="household.intercom" receiver_control="server_lpt.Select" door_control="server_lpt.InitOut"
+                  audio_input="hw:CARD=PCH,DEV=0" />
+        <intercom_sound_player class="devices.multimedia.alsa_sound_player" device="intercom" />
+
         <!-- Подъезд -->
         <front_door_bell_button class="devices.generic.button" property="server_lpt.Error" released_state="True" />
         <front_door_bell class="household.door_bell" sound_player="hall_loudspeakers"
@@ -67,6 +72,19 @@
                        false_property="sleeping"
                        true_property="conscious" />
     </objects>
+
+    <!-- Открывать домофон кому ни попадя -->
+    <on signal="intercom.listener_input" input="'BELL'">
+        <call method="intercom.tell_listener" message="'DO_NOT_LISTEN'" />
+        <call method="intercom.take_receiver" />
+        <call method="intercom_sound_player.play" path="os.path.join(DATA_DIR, 'sound/intercom/cat.wav')">
+            <finish>
+                <call method="intercom.open_door" />
+                <call method="intercom.put_receiver_down" />
+                <call method="intercom.tell_listener" message="'LISTEN_FOR_BELL'" />
+            </finish>
+        </call>
+    </on>
 
     <!-- Звонить в дверь -->
     <on signal="front_door_bell_button.pressed">
