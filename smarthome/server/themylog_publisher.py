@@ -25,9 +25,9 @@ class ThemylogPublisher(object):
         self.queue = Queue()
         start_daemon_thread(self._pub_thread)
 
-    def on_object_signal_emitted(self, object, signal, args, kwargs):
+    def on_object_signal_emitted(self, object, signal, kwargs):
         if isinstance(object, LocalObject):
-            self.pub(object._name, signal, {"args": args, "kwargs": kwargs})
+            self.pub(object._name, signal, kwargs)
 
     def on_object_property_changed(self, object, property_name, old_value, new_value):
         if isinstance(object, LocalObject):

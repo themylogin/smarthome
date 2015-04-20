@@ -281,7 +281,7 @@ class Object(object):
             try:
                 self._init()
             except:
-                self.__object_manager.on_object_error(self._name, {"initialization": sys.exc_info()})
+                self.set_error({"initialization": sys.exc_info()})
                 raise
 
         try:
@@ -291,18 +291,18 @@ class Object(object):
             try:
                 self._init()
             except:
-                self.__object_manager.on_object_error(self._name, {"initialization": sys.exc_info(),
-                                                                   "action": action_exc_info})
+                self.set_error({"initialization": sys.exc_info(),
+                                "action": action_exc_info})
                 raise
             else:
                 try:
                     result = action()
                 except:
-                    self.__object_manager.on_object_error(self._name, {"action": action_exc_info,
-                                                                       "second_action_attempt": sys.exc_info()})
+                    self.set_error({"action": action_exc_info,
+                                    "second_action_attempt": sys.exc_info()})
                     raise
 
-        self.__object_manager.on_object_error(self._name, None)
+        self.set_error(None)
         return result
 
     def receive_property(self, name, value):
@@ -338,11 +338,11 @@ class Object(object):
         if result:
             return property["value"]
         else:
-            self.__object_manager.on_object_error(self._name, {"property_query_timeout": name})
+            self.set_error({"property_query_timeout": name})
             raise ValueError("Timeout waiting for queried property value %s" % name)
 
-    def emit_signal(self, signal, *args, **kwargs):
-        self.__object_manager.on_object_signal_emitted(self._name, signal, *args, **kwargs)
+    def emit_signal(self, signal, **kwargs):
+        self.__object_manager.on_object_signal_emitted(self._name, signal, **kwargs)
 
     def start(self):
         if self._try_init():
@@ -355,7 +355,7 @@ class Object(object):
         try:
             self._init()
         except:
-            self.__object_manager.on_object_error(self._name, {"initialization": sys.exc_info()})
+            self.set_error({"initialization": sys.exc_info()})
             return False
         else:
             return True
@@ -403,7 +403,7 @@ class Object(object):
                 try:
                     self.poll()
                 except:
-                    self.__object_manager.on_object_error(self._name, {"polling": sys.exc_info()})
+                    self.set_error({"polling": sys.exc_info()})
 
     def _output_pad_loop(self, name, generator):
         while True:
@@ -411,7 +411,7 @@ class Object(object):
                 for value in generator():
                     self._write_output_pad(name, value)
             except:
-                self.__object_manager.on_object_error(self._name, {"output_pad_%s_loop" % name: sys.exc_info()})
+                self.set_error({"output_pad_%s_loop" % name: sys.exc_info()})
             else:
                 self.logger.warning("Output pad %s generator finished", name)
 
@@ -420,6 +420,9 @@ class Object(object):
 
     def init(self):
         raise NotImplementedError
+
+    def set_error(self, error):
+        self.__object_manager.on_object_error(self._name, error)
 
     def deferred(self, events):
         return Deferred(events, self.__object_manager)

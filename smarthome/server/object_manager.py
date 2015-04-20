@@ -81,11 +81,11 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
     def connect_object_signal(self, object_name, signal_name, callable):
         self.object_signal_connections[object_name][signal_name].append(callable)
 
-    def on_object_signal_emitted(self, object_name, signal_name, *args, **kwargs):
+    def on_object_signal_emitted(self, object_name, signal_name, **kwargs):
         for callable in self.object_signal_connections[object_name][signal_name]:
-            self.worker_pool.run_task(functools.partial(callable, *args, **kwargs))
+            self.worker_pool.run_task(functools.partial(callable, **kwargs))
 
-        self.notify_object_signal_emitted(self.objects[object_name], signal_name, args, kwargs)
+        self.notify_object_signal_emitted(self.objects[object_name], signal_name, kwargs)
 
     def add_object_property_change_observer(self, object_name, property_name, callable):
         self.object_property_change_observers[object_name][property_name].append(callable)

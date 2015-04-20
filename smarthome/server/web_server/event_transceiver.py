@@ -57,7 +57,7 @@ class EventTransceiver(object):
             self.imported_promises_manager.on_deferred_destroy(args[0])
 
         if event == "object_signal_emitted":
-            self.object_manager.on_object_signal_emitted(args[0], args[1], *args[2], **args[3])
+            self.object_manager.on_object_signal_emitted(args[0], args[1], **args[3])
 
         if event == "object_property_changed":
             self.object_manager.on_object_property_changed(args[0], args[1], args[2], args[3])
