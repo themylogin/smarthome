@@ -62,6 +62,7 @@ exported_promises_manager.add_exported_promises_observer(event_transceiver)
 peer_manager.event_transceiver = event_transceiver
 
 config = etree.parse(open(os.path.join(os.path.dirname(__file__), "../config_%s.xml" % my_name)))
+etree.strip_tags(config, etree.Comment)
 
 themylog = get_themylog(config)
 if themylog:
