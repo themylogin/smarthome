@@ -24,8 +24,6 @@ namespace sound_processor
         int bell_is_being_detected_for;
         
         const size_t block_size = 4410;
-        int16_t* low_passed;
-        int16_t* high_passed;
     };
 }
 
