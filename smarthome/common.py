@@ -6,6 +6,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"DATA_DIR"]
+__all__ = [b"DATA_DIR", b"UTILS_DIR"]
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), b"..", b"data")
+UTILS_DIR = os.path.join(os.path.dirname(__file__), b"..", b"utils")
