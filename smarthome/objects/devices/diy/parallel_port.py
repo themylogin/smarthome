@@ -23,12 +23,12 @@ class ParallelPort(Object):
             self._create_property(input)
 
         for output in self.OUTPUTS:
-            self._create_property(output)
+            self._create_property(output, False)
             self._set_property_setter(output, functools.partial(self._set_output, output), receive_after=True)
 
         for i in range(8):
             name = "Data%d" % i
-            self._create_property(name)
+            self._create_property(name, False)
             self._set_property_setter(name, functools.partial(self._set_data_output, i), receive_after=True)
 
     def init(self):

@@ -23,17 +23,14 @@ class Peer(namedtuple("Peer", ["manager", "http_url", "ws_url", "objects"])):
 
 
 class PeerManager(object):
-    def __init__(self, my_name, bus, imported_promises_manager):
+    def __init__(self, container, my_name, bus):
+        self.container = container
         self.my_name = my_name
 
         self.service_discoverer = ServiceDiscoverer(bus,
                                                     on_resolved=self._on_peer_resolved,
                                                     on_removed=self._on_peer_removed,
                                                     on_error=self._on_error)
-
-        self.object_manager = None
-        self.event_transceiver = None
-        self.imported_promises_manager = imported_promises_manager
 
         self.peers = {}
         self.peers_events_connections = {}
@@ -71,14 +68,14 @@ class PeerManager(object):
                 self.peers_events_connections[uuid] = service.name
                 start_daemon_thread(self._peer_connection_thread, uuid, service.name)
 
-                self.object_manager.on_peers_updated()
+                self.container.object_manager.on_peers_updated()
 
     def _on_peer_removed(self, name):
         if name in self.peers:
             self._remove_peers_connections_for_peer(name)
             del self.peers[name]
 
-            self.object_manager.on_peers_updated()
+            self.container.object_manager.on_peers_updated()
 
     def _on_error(self, error):
         logger.error("Service discoverer error: %s", error)
@@ -97,7 +94,7 @@ class PeerManager(object):
                     ws = websocket.create_connection(self.peers[peer_name].ws_url + "/internal/my_events")
 
                 message = themyutils.json.loads(ws.recv())
-                self.event_transceiver.receive_remote_event(message["event"], message["args"])
+                self.container.event_transceiver.receive_remote_event(message["event"], message["args"])
             except:
                 self.notify_broken_peer(peer_name, sys.exc_info())
                 ws = None

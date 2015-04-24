@@ -1,2 +1,62 @@
 # -*- coding=utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
+
+import os
+
+from themyutils.threading import start_daemon_thread
+
+from smarthome.architecture.object.datastore import Datastore
+from smarthome.common import USER_DATA_DIR
+from smarthome.config.parser.objects import get_objects
+from smarthome.config.parser.on import setup_ons
+from smarthome.config.parser.themylog import get_themylog
+from smarthome.server.container import Container
+from smarthome.server.database import Database
+from smarthome.server.imported_promises_manager import ImportedPromisesManager
+from smarthome.server.exported_promises_manager import ExportedPromisesManager
+from smarthome.server.object_manager import ObjectManager
+from smarthome.server.peer_manager import PeerManager
+from smarthome.server.themylog_publisher import ThemylogPublisher
+from smarthome.server.web_server import WebServer
+from smarthome.server.web_server.event_transceiver import EventTransceiver
+from smarthome.server.worker_pool import WorkerPool
+
+__all__ = [b"setup_server"]
+
+
+def setup_server(name, bus, config):
+    container = Container()
+
+    container.local_database = Database(os.path.join(USER_DATA_DIR, "local_database.json"))
+    container.shared_database = Database(os.path.join(USER_DATA_DIR, "shared_database.json"))
+
+    container.imported_promises_manager = ImportedPromisesManager()
+    container.exported_promises_manager = ExportedPromisesManager()
+
+    container.worker_pool = WorkerPool()
+
+    container.peer_manager = PeerManager(container, name, bus)
+    container.object_manager = ObjectManager(container)
+
+    container.web_server = WebServer(container, "0.0.0.0", 46408)
+
+    container.event_transceiver = EventTransceiver(container)
+    container.exported_promises_manager.add_exported_promises_observer(container.event_transceiver)
+    container.object_manager.add_object_signal_observer(container.event_transceiver)
+    container.object_manager.add_object_property_observer(container.event_transceiver)
+    container.object_manager.add_object_pad_connection_observer(container.event_transceiver)
+    container.object_manager.add_object_pad_value_observer(container.event_transceiver)
+
+    themylog = get_themylog(config)
+    if themylog:
+        themylog_publisher = ThemylogPublisher(*themylog)
+        container.object_manager.add_object_signal_observer(themylog_publisher)
+        container.object_manager.add_object_property_observer(themylog_publisher)
+
+    objects = {name: desc.cls(container, name, desc.args, Datastore(container.local_database, ("datastore", name)))
+               for name, desc in get_objects(config).iteritems()}
+    container.object_manager.set_objects(objects)
+
+    setup_ons(config, container.object_manager)
+
+    start_daemon_thread(container.web_server.serve_forever)

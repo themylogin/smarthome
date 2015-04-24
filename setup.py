@@ -15,6 +15,7 @@ setup(
     description='Smart home server & client',
     long_description=open("README.md").read(),
     install_requires=[
+        "appdirs",
         "gevent",
         "gevent-websocket",
         "ipaddress",

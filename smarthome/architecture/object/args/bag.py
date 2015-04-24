@@ -14,9 +14,9 @@ __all__ = [b"ArgsBag"]
 
 
 class ArgsBag(object):
-    def __init__(self, args, object_manager):
-        self.args = args
+    def __init__(self, object_manager, args):
         self.object_manager = object_manager
+        self.args = args
 
     def __getitem__(self, key):
         value = self.args[key]

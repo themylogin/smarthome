@@ -5,6 +5,7 @@ import logging
 import Queue
 import sys
 import threading
+import traceback
 import uuid
 
 from themyutils.oop.observable import Observable
@@ -33,12 +34,12 @@ class WorkerPool(Observable("task_observer", ["task_complete"])):
                 self.total_workers += 1
 
         task_id = uuid.uuid1()
-        self.queue.put((task_id, task))
+        self.queue.put((task_id, task, traceback.format_stack()))
         return task_id
 
     def _worker(self):
         while True:
-            task_id, task = self.queue.get()
+            task_id, task, stack = self.queue.get()
 
             with self.workers_lock:
                 self.busy_workers += 1
@@ -50,7 +51,7 @@ class WorkerPool(Observable("task_observer", ["task_complete"])):
                 else:
                     result = ValueResult(result)
             except:
-                logger.info("Exception in worker_pool", exc_info=True)
+                logger.info("Exception in worker_pool. Call stack:\n%s" % "".join(stack), exc_info=True)
                 result = ExceptionResult(sys.exc_info())
             self.notify_task_complete(task_id, result)
 

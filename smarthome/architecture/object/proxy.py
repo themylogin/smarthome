@@ -133,15 +133,14 @@ class RemoteException(Exception):
 
 
 class RemoteObject(ProxyObject):
-    def __init__(self, name, description, peer_name, object_manager):
+    def __init__(self, container, peer_name, name, description):
         super(RemoteObject, self).__init__(name)
         self._inspection = description["inspection"]
         self._properties_values = description["properties_values"]
         self._incoming_pad_connections = defaultdict(set, map(lambda (k, v): (k, set(v)),
                                                               description["incoming_pad_connections"].items()))
+        self._container = container
         self._peer_name = peer_name
-        self._object_manager = object_manager
-        self._peers_manager = self._object_manager.peers_manager
 
     def has_property(self, name):
         return name in self._inspection["properties"]
@@ -183,17 +182,17 @@ class RemoteObject(ProxyObject):
 
     def _control(self, command, args):
         try:
-            with self._object_manager.peers_manager.control_connection(self._peer_name) as connection:
+            with self._container.peer_manager.control_connection(self._peer_name) as connection:
                 result = Result.unserialize(connection.control(command, args))
         except:
-            self._peers_manager.notify_broken_peer(self._peer_name, sys.exc_info())
+            self._container.peer_manager.notify_broken_peer(self._peer_name, sys.exc_info())
             raise RemoteException("Exception while communication with remote peer %s" % self._peer_name)
         else:
             if isinstance(result, ExceptionResult):
                 raise RemoteException(result.data)
             if isinstance(result, PromiseResult):
                 deferred = Deferred(result.events, self._object_manager)
-                self._object_manager.peers_manager.imported_promises_manager.manage(result.uuid, deferred)
+                self._container.imported_promises_manager.manage(result.uuid, deferred)
                 return Promise(deferred)
             if isinstance(result, ValueResult):
                 return result.value

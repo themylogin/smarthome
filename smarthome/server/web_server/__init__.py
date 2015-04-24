@@ -20,13 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class WebServer(object):
-    def __init__(self, host, port, database, object_manager, exported_promises_manager):
+    def __init__(self, container, host, port):
+        self.container = container
         self.host = host
         self.port = port
-        self.database = database
-        self.object_manager = object_manager
-        self.worker_pool = object_manager.worker_pool
-        self.exported_promises_manager = exported_promises_manager
 
         self.gevent = None
         self.WebSocketError = None
@@ -34,23 +31,23 @@ class WebServer(object):
         self.task_waiters = {}
         self.task_waiters_lock = threading.Lock()
         self.task_results = {}
-        self.worker_pool.add_task_observer(self)
+        self.container.worker_pool.add_task_observer(self)
 
         self.my_events_waiters_queues = []
 
         self.errors_change_waiters = []
         self.on_object_error_added = lambda *args: self._notify_waiters(self.errors_change_waiters)
         self.on_object_error_removed = lambda *args: self._notify_waiters(self.errors_change_waiters)
-        self.object_manager.add_object_error_observer(self)
+        self.container.object_manager.add_object_error_observer(self)
 
         self.properties_change_waiters = []
         self.on_object_property_changed = lambda *args: self._notify_waiters(self.properties_change_waiters)
-        self.object_manager.add_object_property_observer(self)
+        self.container.object_manager.add_object_property_observer(self)
 
         self.pad_connection_change_waiters = []
         self.on_object_pad_connected = lambda *args: self._notify_waiters(self.pad_connection_change_waiters)
         self.on_object_pad_disconnected = lambda *args: self._notify_waiters(self.pad_connection_change_waiters)
-        self.object_manager.add_object_pad_connection_observer(self)
+        self.container.object_manager.add_object_pad_connection_observer(self)
 
         self.url_map = Map([
             Rule("/internal/my_objects", endpoint="my_objects"),
@@ -161,14 +158,14 @@ class WebServer(object):
     def _process_control(self, data):
         waiter = self.create_waiter()
         with self.task_waiters_lock:
-            task_id = self.worker_pool.run_task(lambda: self._process_control_command(data))
+            task_id = self.container.worker_pool.run_task(lambda: self._process_control_command(data))
             self.task_waiters[task_id] = waiter
 
         self.wait(waiter)
         result = self.task_results.pop(task_id)
 
         if isinstance(result, PromiseResult):
-            self.exported_promises_manager.manage(result.uuid, result.promise.deferred)
+            self.container.exported_promises_manager.manage(result.uuid, result.promise.deferred)
 
         return result.serialize()
 
@@ -177,15 +174,15 @@ class WebServer(object):
         args = data["args"]
 
         if command == "get_property":
-            object = self.object_manager.objects.get(args["object"])
+            object = self.container.object_manager.objects.get(args["object"])
             return getattr(object, args["property"])
 
         if command == "set_property":
-            object = self.object_manager.objects.get(args["object"])
+            object = self.container.object_manager.objects.get(args["object"])
             return setattr(object, args["property"], args["value"])
 
         if command == "call_method":
-            object = self.object_manager.objects.get(args["object"])
+            object = self.container.object_manager.objects.get(args["object"])
             method = getattr(object, args["method"])
             d = args["args"]
 
@@ -203,11 +200,11 @@ class WebServer(object):
             return method(*args, **kwargs)
 
         if command == "connect_pad":
-            dst_object = self.object_manager.objects.get(args["dst_object"])
+            dst_object = self.container.object_manager.objects.get(args["dst_object"])
             return dst_object.connect_to_pad(args["dst_pad"], args["src_object"], args["src_pad"])
 
         if command == "disconnect_pad":
-            dst_object = self.object_manager.objects.get(args["dst_object"])
+            dst_object = self.container.object_manager.objects.get(args["dst_object"])
             return dst_object.disconnect_from_pad(args["dst_pad"], args["src_object"], args["src_pad"])
 
     @json_response
@@ -243,16 +240,16 @@ class WebServer(object):
         return {object_name: {"inspection": object.inspect(),
                               "properties_values": object.dump_properties(),
                               "incoming_pad_connections": object.dump_incoming_pad_connections()}
-                for object_name, object in self.object_manager.objects.iteritems()
+                for object_name, object in self.container.object_manager.objects.iteritems()
                 if not isinstance(object, UnavailableObject) and (filter is None or filter(object))}
 
     def execute_index(self, request):
         with open(os.path.join(os.path.dirname(__file__), b"templates", b"index.html"), b"r") as f:
             return Response(f.read().replace(b"{{ database }}",
-                                             themyutils.json.dumps(self.database.data.get("frontend", {}))),
+                                             themyutils.json.dumps(self.container.shared_database.data.get("frontend", {}))),
                             content_type=b"text/html; charset=utf-8")
 
     def execute_write_frontend_database(self, request):
-        with self.database as data:
+        with self.container.shared_database as data:
             data["frontend"] = themyutils.json.loads(request.get_data())
         return Response()

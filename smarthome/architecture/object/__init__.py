@@ -41,11 +41,11 @@ class Object(object):
     INIT_INTERVAL = 5
     POLL_INTERVAL = 0.01
 
-    def __init__(self, name, args, datastore, object_manager):
+    def __init__(self, container, name, args, datastore):
+        self.__container = container
         self._name = name
-        self.args = ArgsBag(args, object_manager)
+        self.args = ArgsBag(self.__container.object_manager, args)
         self.datastore = datastore
-        self.__object_manager = object_manager
 
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(meth, "smarthome_signal_handler"):
@@ -53,11 +53,11 @@ class Object(object):
                 signal = meth.smarthome_signal_handler_signal
                 if isinstance(raw_arg, ObjectPointerList):
                     for object_pointer in raw_arg:
-                        self.__object_manager.connect_object_signal(object_pointer.name, signal,
+                        self.__container.object_manager.connect_object_signal(object_pointer.name, signal,
                                                                     functools.partial(self._call_with_object,
                                                                                       meth, object_pointer.name))
                 else:
-                    self.__object_manager.connect_object_signal(raw_arg.name, signal, meth)
+                    self.__container.object_manager.connect_object_signal(raw_arg.name, signal, meth)
 
         self._properties = {}
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
@@ -86,7 +86,7 @@ class Object(object):
                         raise TypeError("Property list change observer should take exactly three or four arguments: "
                                         "object, property_name, value[, old_value]")
                     for property_pointer in raw_arg:
-                        self.__object_manager.add_object_property_change_observer(
+                        self.__container.object_manager.add_object_property_change_observer(
                             property_pointer.object_pointer.name,
                             property_pointer.name,
                             self._wrap_property_change_observer(
@@ -100,11 +100,11 @@ class Object(object):
                     if meth.smarthome_property_change_observer_arg_count != 2:
                         raise TypeError("Logic expression change observer should take exactly one argument: value")
                     for property_pointer in raw_arg.properties_involved:
-                        self.__object_manager.add_object_property_change_observer(
+                        self.__container.object_manager.add_object_property_change_observer(
                             property_pointer.object_pointer.name,
                             property_pointer.name,
                             (lambda meth:
-                                 lambda old_value, new_value: meth(raw_arg.expression(self.__object_manager)))(meth)
+                                 lambda old_value, new_value: meth(raw_arg.expression(self.__container.object_manager)))(meth)
                         )
                 else:
                     if meth.smarthome_property_change_observer_arg_count == 2:
@@ -114,7 +114,7 @@ class Object(object):
                     else:
                         raise TypeError("Property change observer should take exactly one or two arguments: "
                                         "value[, old_value]")
-                    self.__object_manager.add_object_property_change_observer(
+                    self.__container.object_manager.add_object_property_change_observer(
                         raw_arg.object_pointer.name,
                         raw_arg.name,
                         self._wrap_property_change_observer(meth, needs_old_value)
@@ -144,7 +144,7 @@ class Object(object):
         self.logger = logger.getChild(self._name)
 
     def _call_with_object(self, meth, object_name, *args, **kwargs):
-        return meth(self.__object_manager.objects[object_name], *args, **kwargs)
+        return meth(self.__container.object_manager.objects[object_name], *args, **kwargs)
 
     def _create_property(self, name, value=_NoDefaultPropertyValue):
         self._properties[name] = {"readable": False,
@@ -200,13 +200,13 @@ class Object(object):
         self._output_pads[name] = {"interface": interface}
 
     def _write_output_pad(self, name, value):
-        self.__object_manager.on_object_output_pad_value(self._name, name, value)
+        self.__container.object_manager.on_object_output_pad_value(self._name, name, value)
 
     def get_property(self, name):
         property = self._properties[name]
 
         if not property["has_value"]:
-            raise PropertyHasNoValueException()
+            raise PropertyHasNoValueException(self._name, name)
 
         if property["readable"]:
             if "get" in property :
@@ -224,11 +224,11 @@ class Object(object):
         return self.__perform_action(lambda: getattr(self, name)(*args, **kwargs))
 
     def connect_to_pad(self, pad, src_object, src_pad):
-        src_pad_desc = self.__object_manager.objects[src_object].get_output_pad(src_pad)
+        src_pad_desc = self.__container.object_manager.objects[src_object].get_output_pad(src_pad)
         if src_pad_desc is None:
             raise ValueError("Object %s does not have pad %s" % (src_object, src_pad))
 
-        dst_pad_desc = self.__object_manager.objects[self._name].get_input_pad(pad)
+        dst_pad_desc = self.__container.object_manager.objects[self._name].get_input_pad(pad)
         if dst_pad_desc is None:
             raise ValueError("Object %s does not have pad %s" % (self._name, pad))
 
@@ -243,7 +243,7 @@ class Object(object):
                 self._name, pad, src_object, src_pad))
         connections.add(connection)
 
-        self.__object_manager.on_object_pad_connected(src_object, src_pad, self._name, pad)
+        self.__container.object_manager.on_object_pad_connected(src_object, src_pad, self._name, pad)
 
     def disconnect_from_pad(self, pad, src_object, src_pad):
         connection = (src_object, src_pad)
@@ -252,12 +252,12 @@ class Object(object):
             raise ValueError("Pad connection does not exist")
         connections.remove(connection)
 
-        dst_pad_desc = self.__object_manager.objects[self._name].get_input_pad(pad)
+        dst_pad_desc = self.__container.object_manager.objects[self._name].get_input_pad(pad)
         if dst_pad_desc["has_disconnected_value"]:
-            self.__object_manager.worker_pool.run_task(
-                lambda: self.__object_manager._write_object_pad(self._name, pad, dst_pad_desc["disconnected_value"]))
+            self.__container.object_manager.worker_pool.run_task(
+                lambda: self.__container.object_manager._write_object_pad(self._name, pad, dst_pad_desc["disconnected_value"]))
 
-        self.__object_manager.on_object_pad_disconnected(src_object, src_pad, self._name, pad)
+        self.__container.object_manager.on_object_pad_disconnected(src_object, src_pad, self._name, pad)
 
     def write_pad(self, name, value):
         return self.__perform_action(lambda: self._input_pads[name]["receiver"](value))
@@ -320,7 +320,7 @@ class Object(object):
                         event.set()
 
             if had_value:
-                self.__object_manager.on_object_property_changed(self._name, name, old_value, value)
+                self.__container.object_manager.on_object_property_changed(self._name, name, old_value, value)
 
     def query_and_wait_for_property(self, name):
         property = self._properties[name]
@@ -342,7 +342,7 @@ class Object(object):
             raise ValueError("Timeout waiting for queried property value %s" % name)
 
     def emit_signal(self, signal, **kwargs):
-        self.__object_manager.on_object_signal_emitted(self._name, signal, **kwargs)
+        self.__container.object_manager.on_object_signal_emitted(self._name, signal, **kwargs)
 
     def start(self):
         if self._try_init():
@@ -358,6 +358,7 @@ class Object(object):
             self.set_error({"initialization": sys.exc_info()})
             return False
         else:
+            self.logger.debug("Initialized")
             return True
 
     def _init(self):
@@ -367,7 +368,7 @@ class Object(object):
 
         for name, property in self._properties.iteritems():
             if property.get("query"):
-                self.__object_manager.worker_pool.run_task(functools.partial(self.query_and_wait_for_property, name))
+                self.__container.worker_pool.run_task(functools.partial(self.query_and_wait_for_property, name))
 
     def _init_loop(self):
         while True:
@@ -383,7 +384,7 @@ class Object(object):
 
         for name, pad in self._input_pads.iteritems():
             if pad["has_initial_value"]:
-                self.__object_manager.worker_pool.run_task(functools.partial(pad["receiver"], pad["initial_value"]))
+                self.__container.worker_pool.run_task(functools.partial(pad["receiver"], pad["initial_value"]))
 
         for name, pad in self._output_pads.iteritems():
             generator = pad.get("generator")
@@ -422,10 +423,10 @@ class Object(object):
         raise NotImplementedError
 
     def set_error(self, error):
-        self.__object_manager.on_object_error(self._name, error)
+        self.__container.object_manager.on_object_error(self._name, error)
 
     def deferred(self, events):
-        return Deferred(events, self.__object_manager)
+        return Deferred(events, self.__container.object_manager)
 
     def event(self, *args, **kwargs):
         return threading.Event(*args, **kwargs)
@@ -440,7 +441,7 @@ class Object(object):
         return start_daemon_thread(*args, **kwargs)
 
     def timer(self, name, timeout, callback):
-        return Timer(self.__object_manager.worker_pool, self.logger.getChild(name), timeout, callback)
+        return Timer(self.__container.worker_pool, self.logger.getChild(name), timeout, callback)
 
 
 def method(meth):

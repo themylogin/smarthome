@@ -12,11 +12,8 @@ __all__ = []
 
 
 class EventTransceiver(object):
-    def __init__(self, web_server, object_manager, imported_promises_manager, exported_promises_manager):
-        self.web_server = web_server
-        self.object_manager = object_manager
-        self.imported_promises_manager = imported_promises_manager
-        self.exported_promises_manager = exported_promises_manager
+    def __init__(self, container):
+        self.container = container
 
     def __getattr__(self, name):
         if name.startswith("on_"):
@@ -39,7 +36,7 @@ class EventTransceiver(object):
         args = map(self._serialize_arg, args)
 
         logger.getChild(event).debug("Notifying: %r", args)
-        self.web_server.notify_my_event(event, args)
+        self.container.web_server.notify_my_event(event, args)
 
     def _serialize_arg(self, arg):
         if isinstance(arg, ProxyObject):
@@ -51,22 +48,22 @@ class EventTransceiver(object):
         logger.getChild(event).debug("Received: %r", args)
 
         if event == "exported_promise_resolved":
-            self.imported_promises_manager.on_deferred_resolve(args[0], args[1], *args[2], **args[3])
+            self.container.imported_promises_manager.on_deferred_resolve(args[0], args[1], *args[2], **args[3])
 
         if event == "exported_promise_destroyed":
-            self.imported_promises_manager.on_deferred_destroy(args[0])
+            self.container.imported_promises_manager.on_deferred_destroy(args[0])
 
         if event == "object_signal_emitted":
-            self.object_manager.on_object_signal_emitted(args[0], args[1], **args[3])
+            self.container.object_manager.on_object_signal_emitted(args[0], args[1], **args[2])
 
         if event == "object_property_changed":
-            self.object_manager.on_object_property_changed(args[0], args[1], args[2], args[3])
+            self.container.object_manager.on_object_property_changed(args[0], args[1], args[2], args[3])
 
         if event == "object_pad_connected":
-            self.object_manager.on_object_pad_connected(args[0], args[1], args[2], args[3])
+            self.container.object_manager.on_object_pad_connected(args[0], args[1], args[2], args[3])
 
         if event == "object_pad_disconnected":
-            self.object_manager.on_object_pad_disconnected(args[0], args[1], args[2], args[3])
+            self.container.object_manager.on_object_pad_disconnected(args[0], args[1], args[2], args[3])
 
         if event == "object_pad_value":
-            self.object_manager.on_object_output_pad_value(args[0], args[1], args[2])
+            self.container.object_manager.on_object_output_pad_value(args[0], args[1], args[2])

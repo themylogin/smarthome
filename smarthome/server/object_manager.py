@@ -4,15 +4,13 @@ from __future__ import absolute_import, division, unicode_literals
 from collections import defaultdict
 import functools
 import logging
-import sys
-import time
 
 from smarthome.architecture.object.error import create_object_error
-from smarthome.architecture.object.pointer import PropertyPointer
 from smarthome.architecture.object.proxy import *
 
 from themyutils.oop.observable import Observable
 
+__all__ = [b"ObjectManager"]
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +20,8 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                     Observable("object_property_observer", ["object_property_changed"]),
                     Observable("object_pad_connection_observer", ["object_pad_connected", "object_pad_disconnected"]),
                     Observable("object_pad_value_observer", ["object_pad_value"])):
-    def __init__(self, peers_manager, worker_pool):
-        self.peers_manager = peers_manager
-        self.peers_manager.object_manager = self
-
-        self.worker_pool = worker_pool
+    def __init__(self, container):
+        self.container = container
 
         self.objects = {}
         self.objects_errors = defaultdict(lambda: None)
@@ -48,13 +43,13 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
         unavailable_objects = set([name
                                    for name, object in self.objects.iteritems()
                                    if isinstance(object, RemoteObject)])
-        for peer_name, peer in self.peers_manager.peers.iteritems():
+        for peer_name, peer in self.container.peer_manager.peers.iteritems():
             for object_name, object_description in peer.objects.iteritems():
                 if isinstance(self.objects.get(object_name), LocalObject):
                     logger.error("Peer %s has object %s with same name as local object", peer_name, object_name)
                 else:
                     logger.info("Discovered remote object %s on peer %s", object_name, peer_name)
-                    self.objects[object_name] = RemoteObject(object_name, object_description, peer_name, self)
+                    self.objects[object_name] = RemoteObject(self.container, peer_name, object_name, object_description)
 
                 unavailable_objects.discard(object_name)
 
@@ -83,7 +78,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
 
     def on_object_signal_emitted(self, object_name, signal_name, **kwargs):
         for callable in self.object_signal_connections[object_name][signal_name]:
-            self.worker_pool.run_task(functools.partial(callable, **kwargs))
+            self.container.worker_pool.run_task(functools.partial(callable, **kwargs))
 
         self.notify_object_signal_emitted(self.objects[object_name], signal_name, kwargs)
 
@@ -99,7 +94,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
         self.notify_object_property_changed(object, property_name, old_value, new_value)
 
         for callable in self.object_property_change_observers[object_name][property_name]:
-            self.worker_pool.run_task(functools.partial(callable, old_value, new_value))
+            self.container.worker_pool.run_task(functools.partial(callable, old_value, new_value))
 
     def on_object_pad_connected(self, src_object, src_pad, dst_object, dst_pad):
         if isinstance(self.objects[dst_object], RemoteObject):
@@ -118,7 +113,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
             if isinstance(object, LocalObject):
                 for pad, connections in object._object._incoming_pad_connections.iteritems():
                     if (object_name, pad_name) in connections:
-                        self.worker_pool.run_task(functools.partial(self._write_object_pad, object._name, pad, value))
+                        self.container.worker_pool.run_task(functools.partial(self._write_object_pad, object._name, pad, value))
 
         object = self.objects[object_name]
         if isinstance(object, LocalObject):

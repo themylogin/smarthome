@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+from collections import namedtuple
 import logging
 import importlib
 import inspect
@@ -8,23 +9,24 @@ import inspect
 from smarthome.architecture.object import Object
 
 logger = logging.getLogger(__name__)
+ObjectDesc = namedtuple("ObjectDesc", ["cls", "args"])
 
 __all__ = [b"get_objects"]
 
 
 def get_objects(xml):
-    return {object_xml.tag: get_object_tuple(object_xml)
+    return {object_xml.tag: get_object_desc(object_xml)
            for object_xml in xml.xpath("/smarthome/objects/*")}
 
 
-def get_object_tuple(xml):
+def get_object_desc(xml):
     args = dict(xml.attrib)
 
     module = importlib.import_module("smarthome.objects.%s" % args["class"])
     cls = get_object_class(module)
     del args["class"]
 
-    return (cls, get_object_args(cls, args))
+    return ObjectDesc(cls=cls, args=get_object_args(cls, args))
 
 
 def get_object_class(module):
