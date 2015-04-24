@@ -33,8 +33,8 @@ class OwnerPresenceWatcher(Object):
         self._create_property("anybody_at_home")
         self._create_property("anybody_leaving")
 
-        self._create_property("owners_at_home", set())
-        self._create_property("owners_leaving", set())
+        self._create_property("owners_at_home")
+        self._create_property("owners_leaving")
 
         for owner in self.owners:
             self._create_property("%s_at_home" % owner)
