@@ -514,7 +514,8 @@ def on_prop_changed(args_bag_property_key):
     def decorator(meth):
         meth.smarthome_property_change_observer = True
         meth.smarthome_property_change_observer_args_bag_property_key = args_bag_property_key
-        meth.smarthome_property_change_observer_arg_count = meth.func_code.co_argcount
+        argspec = inspect.getargspec(meth)
+        meth.smarthome_property_change_observer_arg_count = len(argspec.args) - len(argspec.defaults or [])
         return meth
 
     return decorator
