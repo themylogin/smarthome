@@ -342,7 +342,8 @@ class Object(object):
             raise ValueError("Timeout waiting for queried property value %s" % name)
 
     def emit_signal(self, signal, **kwargs):
-        self.__container.object_manager.on_object_signal_emitted(self._name, signal, **kwargs)
+        if self.__initialized:
+            self.__container.object_manager.on_object_signal_emitted(self._name, signal, **kwargs)
 
     def start(self):
         if self._try_init():
