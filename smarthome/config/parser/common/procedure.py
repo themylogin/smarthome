@@ -20,7 +20,7 @@ def eval_procedure(container, procedure):
         if command.tag == "call":
             object, method = command.get("method").split(".")
             meth = getattr(container.object_manager.objects[object], method)
-            result = meth(**{k: parse_logic_expression(v).expression(container.object_manager)
+            result = meth(**{k: parse_logic_expression(v).expression(container)
                              for k, v in command.attrib.iteritems()
                              if k not in ("method",)})
 
@@ -36,7 +36,7 @@ def eval_procedure(container, procedure):
             object, property = command.get("property").split(".")
             expression = parse_logic_expression(command.get("value"))
             container.object_manager.objects[object].set_property(property,
-                                                                  expression.expression(container.object_manager))
+                                                                  expression.expression(container))
 
         elif command.tag == "async":
             container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren()))
