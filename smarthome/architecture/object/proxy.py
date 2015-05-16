@@ -185,7 +185,6 @@ class RemoteObject(ProxyObject):
             with self._container.peer_manager.control_connection(self._peer_name) as connection:
                 result = Result.unserialize(connection.control(command, args))
         except:
-            self._container.peer_manager.notify_broken_peer(self._peer_name, sys.exc_info())
             raise RemoteException("Exception while communication with remote peer %s" % self._peer_name)
         else:
             if isinstance(result, ExceptionResult):
