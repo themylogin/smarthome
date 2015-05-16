@@ -430,7 +430,7 @@ class Object(object):
         self.__container.object_manager.on_object_error(self._name, error)
 
     def deferred(self, events):
-        return Deferred(events, self.__container.object_manager)
+        return Deferred(self.__container, events)
 
     def event(self, *args, **kwargs):
         return threading.Event(*args, **kwargs)
