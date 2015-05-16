@@ -41,10 +41,6 @@ class SmoothOnOffDevice(Object):
         self.timeout_id = None
 
     @prop(toggleable=True)
-    def get_on(self):
-        return self.args["property"]
-
-    @prop(toggleable=True)
     def set_on(self, value):
         if self.timeout_id and self.value_when_finished != value:
             self.stop_timer()
