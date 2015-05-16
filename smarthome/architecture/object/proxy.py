@@ -191,7 +191,7 @@ class RemoteObject(ProxyObject):
             if isinstance(result, ExceptionResult):
                 raise RemoteException(result.data)
             if isinstance(result, PromiseResult):
-                deferred = Deferred(result.events, self._object_manager)
+                deferred = Deferred(self._container, result.events)
                 self._container.imported_promises_manager.manage(result.uuid, deferred)
                 return Promise(deferred)
             if isinstance(result, ValueResult):

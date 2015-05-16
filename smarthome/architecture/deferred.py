@@ -10,12 +10,13 @@ __all__ = [b"Deferred", b"Promise"]
 
 
 class Deferred(object):
-    def __init__(self, events, object_manager):
+    def __init__(self, container, events):
+        self.container = container
+
         self.events = {event: {"resolved": False,
                                "callbacks": []}
                        for event in events}
         self.events_lock = threading.Lock()
-        self.object_manager = object_manager
 
         self.promises = []
         self.destroy_callbacks = []
@@ -53,8 +54,8 @@ class Deferred(object):
         return super(Deferred, self).__getattribute__(name)
 
     def _perform_callback(self, event, callback):
-        self.object_manager.worker_pool.run_task(lambda: callback(*self.events[event]["resolved_args"],
-                                                                  **self.events[event]["resolved_kwargs"]))
+        self.container.worker_pool.run_task(lambda: callback(*self.events[event]["resolved_args"],
+                                                             **self.events[event]["resolved_kwargs"]))
 
     def promise(self):
         promise = Promise(self)
