@@ -48,9 +48,9 @@
         <all_lightning_except_projector class="devices.generic.on_off_device_group"
                                         properties="corridor_light.on, balcony_light.on, room_recreation_light.on,
                                                     bathroom_light.on, kitchen_light.on, room_work_light.on,
-                                                    desktop_screens.on, desktop_light.on" />
+                                                    desktop_screens_smooth.on, desktop_light.on" />
         <all_lightning class="devices.generic.on_off_device_group"
-                       properties="all_lightning_except_projector.on, projector.on" />
+                       properties="all_lightning_except_projector.on, projector_smooth.on" />
 
         <!-- Сон -->
         <!-- false_to_true_interrupt_immediately="False" потому что если встал в 11:57, включив свет в ванной, в
