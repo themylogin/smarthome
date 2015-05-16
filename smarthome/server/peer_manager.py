@@ -16,7 +16,7 @@ from smarthome.zeroconf.discoverer import ServiceDiscoverer
 logger = logging.getLogger(__name__)
 
 
-class Peer(namedtuple("Peer", ["manager", "http_url", "ws_url", "objects"])):
+class Peer(namedtuple("Peer", ["manager", "http_url", "ws_url", "possessions"])):
     pass
 
 
@@ -42,15 +42,15 @@ class PeerManager(object):
             return
 
         try:
-            objects = requests.get(service.url + "/internal/my_objects").json()
+            possessions = requests.get(service.url + "/internal/my_possessions").json()
         except Exception:
-            logger.error("Unable to receive objects from peer %s, retrying in 1 second", service.url, exc_info=True)
+            logger.error("Unable to receive possessions from peer %s, retrying in 1 second", service.url, exc_info=True)
             self.container.worker_pool.run_task(lambda: (time.sleep(1), self._on_peer_resolved(service)))
         else:
             self.peers[service.name] = Peer(self,
                                             service.url,
                                             service.url.replace("http://", "ws://"),
-                                            objects)
+                                            possessions)
 
             start_daemon_thread(self._peer_connection_thread, service.name)
 

@@ -44,7 +44,7 @@ class ObjectManager(Observable("object_error_observer", ["object_error_changed"]
                                    for name, object in self.objects.iteritems()
                                    if isinstance(object, RemoteObject)])
         for peer_name, peer in self.container.peer_manager.peers.iteritems():
-            for object_name, object_description in peer.objects.iteritems():
+            for object_name, object_description in peer.possessions["objects"].iteritems():
                 if isinstance(self.objects.get(object_name), LocalObject):
                     logger.error("Peer %s has object %s with same name as local object", peer_name, object_name)
                 else:

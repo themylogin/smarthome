@@ -50,7 +50,7 @@ class WebServer(object):
         self.container.object_manager.add_object_pad_connection_observer(self)
 
         self.url_map = Map([
-            Rule("/internal/my_objects", endpoint="my_objects"),
+            Rule("/internal/my_possessions", endpoint="my_possessions"),
             Rule("/internal/my_events", endpoint="my_events"),
 
             Rule("/control", endpoint="control"),
@@ -110,8 +110,8 @@ class WebServer(object):
             waiter.send()
 
     @json_response
-    def execute_my_objects(self, request):
-        return self._dump_objects(lambda object: isinstance(object, LocalObject))
+    def execute_my_possessions(self, request):
+        return {"objects": self._dump_objects(lambda object: isinstance(object, LocalObject))}
 
     @json_response
     def execute_my_events(self, request):
