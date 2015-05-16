@@ -15,7 +15,7 @@ __all__ = [b"ObjectManager"]
 logger = logging.getLogger(__name__)
 
 
-class ObjectManager(Observable("object_error_observer", ["object_error_added", "object_error_removed"]),
+class ObjectManager(Observable("object_error_observer", ["object_error_changed"]),
                     Observable("object_signal_observer", ["object_signal_emitted"]),
                     Observable("object_property_observer", ["object_property_changed"]),
                     Observable("object_pad_connection_observer", ["object_pad_connected", "object_pad_disconnected"]),
@@ -62,7 +62,11 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
             if error is None:
                 logger.info("Removing object %s errors", name)
                 self.objects_errors[name] = None
+
+                self.notify_object_error_changed(self.objects[name], self.objects_errors[name])
             else:
+                notify = False
+
                 if self.objects_errors[name] is None:
                     self.objects_errors[name] = {}
 
@@ -72,6 +76,10 @@ class ObjectManager(Observable("object_error_observer", ["object_error_added", "
                     if key_error_object != old_error_object:
                         logger.info("Setting object %s error %s: %s", name, key, key_error_object.format())
                         self.objects_errors[name][key] = key_error_object
+                        notify = True
+
+                if notify:
+                    self.notify_object_error_changed(self.objects[name], self.objects_errors[name])
 
     def connect_object_signal(self, object_name, signal_name, callable):
         self.object_signal_connections[object_name][signal_name].append(callable)

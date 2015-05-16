@@ -6,7 +6,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"create_object_error", b"ObjectError", b"ExceptionObjectError"]
+__all__ = [b"create_object_error", b"ObjectError", b"PlainObjectError", b"ExceptionObjectError"]
 
 
 def create_object_error(error):
@@ -17,10 +17,15 @@ def create_object_error(error):
             error[2].__class__.__name__ == "traceback"):
         return ExceptionObjectError(error[0], error[1], error[2])
     else:
-        return ObjectError(error)
+        return PlainObjectError(error)
 
 
 class ObjectError(object):
+    def format(self):
+        raise NotImplementedError
+
+
+class PlainObjectError(ObjectError):
     def __init__(self, value):
         self.value = value
 
@@ -28,7 +33,7 @@ class ObjectError(object):
         return self.value
 
 
-class ExceptionObjectError(object):
+class ExceptionObjectError(ObjectError):
     def __init__(self, etype, value, traceback):
         self.etype = etype
         self.value = value

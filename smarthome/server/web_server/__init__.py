@@ -36,8 +36,7 @@ class WebServer(object):
         self.my_events_waiters_queues = []
 
         self.errors_change_waiters = []
-        self.on_object_error_added = lambda *args: self._notify_waiters(self.errors_change_waiters)
-        self.on_object_error_removed = lambda *args: self._notify_waiters(self.errors_change_waiters)
+        self.on_object_error_changed = lambda *args: self._notify_waiters(self.errors_change_waiters)
         self.container.object_manager.add_object_error_observer(self)
 
         self.properties_change_waiters = []
@@ -239,7 +238,10 @@ class WebServer(object):
     def _dump_objects(self, filter=None):
         return {object_name: {"inspection": object.inspect(),
                               "properties_values": object.dump_properties(),
-                              "incoming_pad_connections": object.dump_incoming_pad_connections()}
+                              "incoming_pad_connections": object.dump_incoming_pad_connections(),
+                              "errors": {key: error.format()
+                                         for key, error in (self.container.object_manager.objects_errors[object_name]
+                                                            or {}).iteritems()}}
                 for object_name, object in self.container.object_manager.objects.iteritems()
                 if not isinstance(object, UnavailableObject) and (filter is None or filter(object))}
 

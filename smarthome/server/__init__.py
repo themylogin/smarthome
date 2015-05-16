@@ -42,6 +42,7 @@ def setup_server(name, bus, config):
 
     container.event_transceiver = EventTransceiver(container)
     container.exported_promises_manager.add_exported_promises_observer(container.event_transceiver)
+    container.object_manager.add_object_error_observer(container.event_transceiver)
     container.object_manager.add_object_signal_observer(container.event_transceiver)
     container.object_manager.add_object_property_observer(container.event_transceiver)
     container.object_manager.add_object_pad_connection_observer(container.event_transceiver)
