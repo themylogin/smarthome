@@ -44,7 +44,7 @@ class Object(object):
     def __init__(self, container, name, args, datastore):
         self.__container = container
         self._name = name
-        self.args = ArgsBag(self.__container.object_manager, args)
+        self.args = ArgsBag(self.__container, args)
         self.datastore = datastore
 
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):

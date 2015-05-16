@@ -14,8 +14,8 @@ __all__ = [b"ArgsBag"]
 
 
 class ArgsBag(object):
-    def __init__(self, object_manager, args):
-        self.object_manager = object_manager
+    def __init__(self, container, args):
+        self.container = container
         self.args = args
 
     def __getitem__(self, key):
@@ -35,12 +35,12 @@ class ArgsBag(object):
                                                functools.partial(self._set_property_pointer_list_item, value))
 
         if isinstance(value, LogicExpression):
-            return functools.partial(value.expression, self.object_manager)
+            return functools.partial(value.expression, self.container)
 
         return value
 
     def _get_object(self, object_pointer):
-        return self.object_manager.objects.get(object_pointer.name, UnavailableObject(object_pointer.name))
+        return self.container.object_manager.objects.get(object_pointer.name, UnavailableObject(object_pointer.name))
 
     def _get_property(self, object_property_pointer):
         return getattr(self._get_object(object_property_pointer.object_pointer), object_property_pointer.name)

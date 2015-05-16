@@ -13,28 +13,30 @@ logger = logging.getLogger(__name__)
 __all__ = [b"eval_procedure"]
 
 
-def eval_procedure(object_manager, procedure, *args, **kwargs):
+def eval_procedure(container, procedure):
     for command in procedure:
         logger.debug("Evaluating %s", etree.tostring(command).strip())
 
         if command.tag == "call":
             object, method = command.get("method").split(".")
-            result = getattr(object_manager.objects[object], method)(**{k: parse_logic_expression(v).expression(object_manager)
-                                                                        for k, v in command.attrib.iteritems()
-                                                                        if k not in ("method",)})
+            meth = getattr(container.object_manager.objects[object], method)
+            result = meth(**{k: parse_logic_expression(v).expression(container.object_manager)
+                             for k, v in command.attrib.iteritems()
+                             if k not in ("method",)})
 
             if command.getchildren():
                 if not isinstance(result, Promise):
                     raise ValueError("Command did not returned a Promise")
 
                 for child in command.getchildren():
-                    getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, object_manager,
+                    getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, container,
                                                                            child.getchildren()))
 
         elif command.tag == "set":
             object, property = command.get("property").split(".")
             expression = parse_logic_expression(command.get("value"))
-            object_manager.objects[object].set_property(property, expression.expression(object_manager))
+            container.object_manager.objects[object].set_property(property,
+                                                                  expression.expression(container.object_manager))
 
         else:
             raise ValueError("Unknown command: %s" % command.tag)

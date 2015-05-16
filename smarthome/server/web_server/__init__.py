@@ -111,7 +111,8 @@ class WebServer(object):
 
     @json_response
     def execute_my_possessions(self, request):
-        return {"objects": self._dump_objects(lambda object: isinstance(object, LocalObject))}
+        return {"objects": self._dump_objects(lambda object: isinstance(object, LocalObject)),
+                "routines": self.container.routine_manager.local_routines.keys()}
 
     @json_response
     def execute_my_events(self, request):
@@ -206,6 +207,9 @@ class WebServer(object):
         if command == "disconnect_pad":
             dst_object = self.container.object_manager.objects.get(args["dst_object"])
             return dst_object.disconnect_from_pad(args["dst_pad"], args["src_object"], args["src_pad"])
+
+        if command == "call_routine":
+            return self.container.routine_manager.call_routine(args["name"])
 
     @json_response
     def execute_watch_objects(self, request):
