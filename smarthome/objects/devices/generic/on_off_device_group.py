@@ -5,7 +5,7 @@ import logging
 
 from smarthome.architecture.object import Object, prop, on_prop_changed
 from smarthome.architecture.object.args import Arg
-from smarthome.architecture.object.args.types import object_pointer_list, property_pointer_list
+from smarthome.architecture.object.args.types import property_pointer_list
 
 logger = logging.getLogger(__name__)
 
