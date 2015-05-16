@@ -14,7 +14,9 @@
 
     <routines>
         <watch_projector>
-            <set property="projector.on" value="True" />
+            <async>
+                <set property="projector.on" value="True" />
+            </async>
             <set property="all_lightning_except_projector.on" value="False" />
         </watch_projector>
     </routines>

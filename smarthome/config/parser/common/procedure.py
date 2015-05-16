@@ -26,7 +26,7 @@ def eval_procedure(container, procedure):
 
             if command.getchildren():
                 if not isinstance(result, Promise):
-                    raise ValueError("Command did not returned a Promise")
+                    raise ValueError("Command has children but did not returned a Promise")
 
                 for child in command.getchildren():
                     getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, container,
@@ -37,6 +37,9 @@ def eval_procedure(container, procedure):
             expression = parse_logic_expression(command.get("value"))
             container.object_manager.objects[object].set_property(property,
                                                                   expression.expression(container.object_manager))
+
+        elif command.tag == "async":
+            container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren()))
 
         else:
             raise ValueError("Unknown command: %s" % command.tag)
