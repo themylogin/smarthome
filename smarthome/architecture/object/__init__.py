@@ -360,6 +360,7 @@ class Object(object):
             return False
         else:
             self.logger.debug("Initialized")
+            self.set_error(None)
             return True
 
     def _init(self):
