@@ -321,6 +321,8 @@ class Object(object):
 
             if had_value:
                 self.__container.object_manager.on_object_property_changed(self._name, name, old_value, value)
+            else:
+                self.__container.object_manager.on_object_property_appeared(self._name, name, value)
 
     def query_and_wait_for_property(self, name):
         property = self._properties[name]

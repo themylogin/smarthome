@@ -41,6 +41,7 @@ class WebServer(object):
 
         self.properties_change_waiters = []
         self.on_object_property_changed = lambda *args: self._notify_waiters(self.properties_change_waiters)
+        self.on_object_property_appeared = lambda *args: self._notify_waiters(self.properties_change_waiters)
         self.container.object_manager.add_object_property_observer(self)
 
         self.pad_connection_change_waiters = []

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class ObjectManager(Observable("object_error_observer", ["object_error_changed"]),
                     Observable("object_signal_observer", ["object_signal_emitted"]),
-                    Observable("object_property_observer", ["object_property_changed"]),
+                    Observable("object_property_observer", ["object_property_changed", "object_property_appeared"]),
                     Observable("object_pad_connection_observer", ["object_pad_connected", "object_pad_disconnected"]),
                     Observable("object_pad_value_observer", ["object_pad_value"])):
     def __init__(self, container):
@@ -103,6 +103,14 @@ class ObjectManager(Observable("object_error_observer", ["object_error_changed"]
 
         for callable in self.object_property_change_observers[object_name][property_name]:
             self.container.worker_pool.run_task(functools.partial(callable, old_value, new_value))
+
+    def on_object_property_appeared(self, object_name, property_name, value):
+        object = self.objects[object_name]
+
+        if isinstance(object, RemoteObject):
+            object._properties_values[property_name] = value
+
+        self.notify_object_property_appeared(object, property_name, value)
 
     def on_object_pad_connected(self, src_object, src_pad, dst_object, dst_pad):
         if isinstance(self.objects[dst_object], RemoteObject):

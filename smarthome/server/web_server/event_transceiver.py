@@ -29,6 +29,7 @@ class EventTransceiver(object):
         local_only_events = {"object_error_changed": 0,
                              "object_signal_emitted": 0,
                              "object_property_changed": 0,
+                             "object_property_appeared": 0,
                              "object_pad_connected": 2,
                              "object_pad_disconnected": 2,
                              "object_pad_value": 2}
@@ -70,6 +71,9 @@ class EventTransceiver(object):
 
         if event == "object_property_changed":
             self.container.object_manager.on_object_property_changed(args[0], args[1], args[2], args[3])
+
+        if event == "object_property_appeared":
+            self.container.object_manager.on_object_property_appeared(args[0], args[1], args[2])
 
         if event == "object_pad_connected":
             self.container.object_manager.on_object_pad_connected(args[0], args[1], args[2], args[3])

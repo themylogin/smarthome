@@ -33,6 +33,9 @@ class ThemylogPublisher(object):
         if isinstance(object, LocalObject):
             self.pub(object._name, "%s_changed" % property_name, {"value": new_value, "old_value": old_value})
 
+    def on_object_property_appeared(self, object, property_name, value):
+        pass
+
     def pub(self, logger, msg, args):
         self.queue.put({"application": "smarthome",
                         "logger": logger,
