@@ -61,3 +61,28 @@
         {
             border-style: outset;
         }
+
+    .GenericObject .errors
+    {
+        margin: 0;
+        padding: 0;
+    }
+        .GenericObject .errors li
+        {
+            list-style-type: none;
+        }
+            .GenericObject .errors li h6
+            {
+                margin: 0;
+                padding: 0;
+
+                color: #f00;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            .GenericObject .errors li pre
+            {
+                margin: 0;
+                padding: 0;
+                display: none;
+            }

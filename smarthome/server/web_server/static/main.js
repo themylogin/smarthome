@@ -123,10 +123,23 @@ ObjectPainter.prototype.paint = function($object, objectData)
 
 function defaultPainter($object, objectData)
 {
+    if (typeof defaultPainter.zIndex == "undefined")
+    {
+        defaultPainter.zIndex = 0;
+    }
+
     if (!$object.hasClass("GenericObject"))
     {
         $object.addClass("GenericObject");
         $object.html("");
+
+        $object.on("click", function(event){
+            $object.css("zIndex", ++defaultPainter.zIndex);
+        });
+        $object.on("contextmenu", function(event){
+            $object.css("zIndex", 0);
+            event.preventDefault();
+        });
 
         $object.append("<h1>" + $object.data("name") + "</h1>");
 
@@ -155,6 +168,10 @@ function defaultPainter($object, objectData)
             $pad.text(pad);
             $object.append($pad);
         });
+
+        $object.append($("<ul/>").addClass("errors").on("click contextmenu", "li h6", function(){
+            $(this).next().toggle();
+        }));
     }
 
     $.each(objectData["properties_values"], function(name, value){
@@ -171,6 +188,20 @@ function defaultPainter($object, objectData)
             $tr.find(".currentValue").removeClass("boolean");
         }
     });
+
+    if ($.isEmptyObject(objectData["errors"]))
+    {
+        $object.removeClass("hasErrors");
+        $object.find(".errors").html("");
+    }
+    else
+    {
+        $object.addClass("hasErrors");
+        $object.find(".errors").html("");
+        $.each(objectData["errors"], function(k ,v){
+            $object.find(".errors").append($("<li/>").append($("<h6/>").text(k)).append($("<pre/>").text(v)));
+        });
+    }
 }
 
 //
