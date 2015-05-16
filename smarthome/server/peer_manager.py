@@ -100,14 +100,30 @@ class PeerControlConnection(object):
                 self.connection = self.pool.pop()
             except IndexError:
                 logger.info("Creating new control connection: %s", self.url)
-                self.connection = websocket.create_connection(self.url + "/control")
+                self.__connect()
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        with self.pool_lock:
-            self.pool.append(self.connection)
+        if self.connection:
+            with self.pool_lock:
+                self.pool.append(self.connection)
 
     def control(self, command, args):
+        try:
+            return self.__do_control(command, args)
+        except:
+            logger.error("Peer control connection error, retrying", exc_info=True)
+            try:
+                self.__connect()
+                return self.__do_control(command, args)
+            except:
+                self.connection = None
+                raise
+
+    def __connect(self):
+        self.connection = websocket.create_connection(self.url + "/control")
+
+    def __do_control(self, command, args):
         self.connection.send(themyutils.json.dumps({"command": command, "args": args}))
         return themyutils.json.loads(self.connection.recv())

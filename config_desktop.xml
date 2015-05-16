@@ -16,4 +16,22 @@
 
         <hdmi_matrix class="devices.multimedia.monoprice_hdmi_4x4_matrix" device="/dev/ttyS0" />
     </objects>
+
+    <routines>
+        <use_linux>
+            <set property="hdmi_matrix.output_1" value="1" />
+            <set property="hdmi_matrix.output_2" value="2" />
+            <set property="hdmi_matrix.output_3" value="3" />
+        </use_linux>
+        <use_windows>
+            <set property="hdmi_matrix.output_1" value="2" />
+            <set property="hdmi_matrix.output_2" value="1" />
+            <set property="hdmi_matrix.output_3" value="3" />
+        </use_windows>
+        <use_hummingboard>
+            <set property="hdmi_matrix.output_1" value="4" />
+            <set property="hdmi_matrix.output_2" value="2" />
+            <set property="hdmi_matrix.output_3" value="3" />
+        </use_hummingboard>
+    </routines>
 </smarthome>

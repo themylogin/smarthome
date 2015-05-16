@@ -95,4 +95,9 @@
     <on signal="bathroom_door.opened">
         <set property="bathroom_light.on" value="True" />
     </on>
+
+    <!-- Управление музыкой на кухне -->
+    <on property="kitchen_work_zone_light.on">
+        <set property="nad.speaker_b" value="kitchen_work_zone_light.on" />
+    </on>
 </smarthome>
