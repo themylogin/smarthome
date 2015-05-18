@@ -31,7 +31,7 @@ def setup_ons(config, container):
 def handle_signal(container, on_xml, **kwargs):
     for k, v in kwargs.iteritems():
         if on_xml.get(k):
-            w = parse_logic_expression(on_xml.get(k)).expression(container.object_manager)
+            w = parse_logic_expression(on_xml.get(k)).expression(container)
             if w != v:
                 logger.debug("Skipping %s because %s value %r != %r", etree.tostring(on_xml).strip(), k, w, v)
                 return
