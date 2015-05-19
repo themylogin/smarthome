@@ -13,11 +13,16 @@
     </objects>
 
     <routines>
-        <watch_projector>
-            <async>
-                <set property="projector.on" value="True" />
-            </async>
-            <set property="all_lightning_except_projector.on" value="False" />
-        </watch_projector>
+        <toggle_watch_projector>
+            <if condition="projector.on == False">
+                <async>
+                    <set property="projector.on" value="True" />
+                </async>
+                <set property="all_lightning_except_projector.on" value="False" />
+            </if>
+            <else>
+                <set property="projector_smooth.on" value="False" />
+            </else>
+        </toggle_watch_projector>
     </routines>
 </smarthome>

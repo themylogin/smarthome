@@ -14,10 +14,35 @@ __all__ = [b"eval_procedure"]
 
 
 def eval_procedure(container, procedure):
+    had_if = False
+    eval_next_else = False
     for command in procedure:
         logger.debug("Evaluating %s", etree.tostring(command).strip())
 
-        if command.tag == "call":
+        if command.tag == "else":
+            if not had_if:
+                raise ValueError("Else witout preceding if")
+
+            if eval_next_else:
+                eval_procedure(container, command.getchildren())
+            else:
+                logger.debug("Skipping this else because if condition was True")
+
+            continue
+
+        had_if = False
+        eval_next_else = False
+
+        if command.tag == "if":
+            had_if = True
+            condition = parse_logic_expression(command.get("condition")).expression(container)
+            logger.debug("Condition value: %r", condition)
+            if condition:
+                eval_procedure(container, command.getchildren())
+            else:
+                eval_next_else = True
+
+        elif command.tag == "call":
             object, method = command.get("method").split(".")
             meth = getattr(container.object_manager.objects[object], method)
             result = meth(**{k: parse_logic_expression(v).expression(container)
