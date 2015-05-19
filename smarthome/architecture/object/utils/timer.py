@@ -24,7 +24,7 @@ class Timer(object):
     def start(self):
         with self.lock:
             self.callback_at = datetime.now() + timedelta(seconds=self.timeout)
-            self.logger.info("Starting to time out at %r", self.callback_at)
+            self.logger.info("Starting to time out till %r", self.callback_at)
 
             if not self.started:
                 self.started = True
