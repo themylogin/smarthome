@@ -104,7 +104,7 @@ class Object(object):
                             property_pointer.object_pointer.name,
                             property_pointer.name,
                             (lambda meth:
-                                 lambda old_value, new_value: meth(raw_arg.expression(self.__container.object_manager)))(meth)
+                                 lambda old_value, new_value: meth(raw_arg.expression(self.__container)))(meth)
                         )
                 else:
                     if meth.smarthome_property_change_observer_arg_count == 2:
