@@ -45,10 +45,11 @@
         <bathroom_door class="household.door" property="server_lpt.PaperOut" />
 
         <!-- Группы электроприборов -->
-        <all_lightning_except_projector class="devices.generic.on_off_device_group"
+        <all_lightning_except_work      class="devices.generic.on_off_device_group"
                                         properties="corridor_light.on, balcony_light.on, room_recreation_light.on,
-                                                    bathroom_light.on, kitchen_light.on, room_work_light.on,
-                                                    desktop_screens_smooth.on, desktop_light.on" />
+                                                    bathroom_light.on, kitchen_light.on, room_work_light.on" />
+        <all_lightning_except_projector class="devices.generic.on_off_device_group"
+                                        properties="all_lightning_except_work.on, desktop_screens_smooth.on" />
         <all_lightning class="devices.generic.on_off_device_group"
                        properties="all_lightning_except_projector.on, projector_smooth.on" />
 
