@@ -75,7 +75,7 @@ class SerialBitVector(Object):
         bits = map(bool, map(int, s))
         if len(bits) != self.args["length"]:
             raise ValueError("Read only %d bits (%s), expected %d" % (
-                len(bits), bits, len(self.args["length"]),
+                len(bits), bits, self.args["length"],
             ))
 
         for i, bit in enumerate(bits):
