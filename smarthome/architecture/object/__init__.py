@@ -13,10 +13,11 @@ import types
 
 from themyutils.threading import start_daemon_thread
 
-from smarthome.architecture.object.logic_expression import LogicExpression
-from smarthome.architecture.object.pointer import ObjectPointerList, PropertyPointerList
 from smarthome.architecture.deferred import Deferred
 from smarthome.architecture.object.args.bag import ArgsBag
+from smarthome.architecture.object.logic_expression import LogicExpression
+from smarthome.architecture.object.pointer import ObjectPointerList, PropertyPointerList
+from smarthome.architecture.object.utils.debounced_property_change_observer import DebouncedPropertyChangeObserver
 from smarthome.architecture.object.utils.timer import Timer
 
 
@@ -93,7 +94,8 @@ class Object(object):
                                 functools.partial(functools.partial(self._call_with_object, meth,
                                                                     property_pointer.object_pointer.name),
                                                   property_pointer.name),
-                                needs_old_value
+                                needs_old_value,
+                                meth
                             )
                         )
                 elif isinstance(raw_arg, LogicExpression):
@@ -117,7 +119,7 @@ class Object(object):
                     self.__container.object_manager.add_object_property_change_observer(
                         raw_arg.object_pointer.name,
                         raw_arg.name,
-                        self._wrap_property_change_observer(meth, needs_old_value)
+                        self._wrap_property_change_observer(meth, needs_old_value, meth)
                     )
 
         self._methods = {name
@@ -186,15 +188,22 @@ class Object(object):
                 for attr in dir(meth)
                 if attr.startswith(attr_prefix)}
 
-    def _wrap_property_change_observer(self, meth, needs_old_value):
+    def _wrap_property_change_observer(self, meth, needs_old_value, original_meth):
         if needs_old_value:
             def wrapped(old_value, new_value):
                 return meth(new_value, old_value)
-            return wrapped
+            return self._wrap_normalized_property_change_observer(wrapped, original_meth)
         else:
             def wrapped(old_value, new_value):
                 return meth(new_value)
-            return wrapped
+            return self._wrap_normalized_property_change_observer(wrapped, original_meth)
+
+    def _wrap_normalized_property_change_observer(self, observer, original_meth):
+        debounce_time = original_meth.smarthome_property_change_observer_debounce
+        if debounce_time:
+            observer = DebouncedPropertyChangeObserver(self.__container, observer, debounce_time)
+
+        return observer
 
     def _create_output_pad(self, name, interface):
         self._output_pads[name] = {"interface": interface}
@@ -514,10 +523,11 @@ def _do_prop_attrs(meth, prefix, attrs):
         setattr(meth, "smarthome_property_" + prefix + k, v)
 
 
-def on_prop_changed(args_bag_property_key):
+def on_prop_changed(args_bag_property_key, debounce=False):
     def decorator(meth):
         meth.smarthome_property_change_observer = True
         meth.smarthome_property_change_observer_args_bag_property_key = args_bag_property_key
+        meth.smarthome_property_change_observer_debounce = debounce
         argspec = inspect.getargspec(meth)
         meth.smarthome_property_change_observer_arg_count = len(argspec.args) - len(argspec.defaults or [])
         return meth

@@ -22,7 +22,7 @@ class KeysHolder(Object):
     def init(self):
         self.handle_property_changed(self.args["property"])
 
-    @on_prop_changed("property")
+    @on_prop_changed("property", debounce=1)
     def handle_property_changed(self, value):
         self.receive_property("has_keys", value == self.args["has_keys_value"])
 
