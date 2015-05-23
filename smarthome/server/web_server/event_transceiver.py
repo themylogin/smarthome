@@ -32,7 +32,7 @@ class EventTransceiver(object):
                              "object_property_appeared": 0,
                              "object_pad_connected": 2,
                              "object_pad_disconnected": 2,
-                             "object_pad_value": 2}
+                             "object_pad_value": 0}
         if event in local_only_events:
             if not isinstance(args[local_only_events[event]], LocalObject):
                 return
