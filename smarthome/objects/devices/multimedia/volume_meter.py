@@ -8,10 +8,10 @@ from scipy.signal import firwin
 
 from smarthome.architecture.object import Object
 
-__all__ = [b"RGB_LED_Music_Controller"]
+__all__ = [b"Volume_Meter"]
 
 
-class RGB_LED_Music_Controller(Object):
+class Volume_Meter(Object):
     def create(self):
         pass
 
@@ -22,8 +22,8 @@ class RGB_LED_Music_Controller(Object):
         self.input.setformat(alsaaudio.PCM_FORMAT_S16_LE)
         self.input.setperiodsize(1024)
 
-        self._create_output_pad("RGpulse", "RGB")
-        self._create_output_pad("stereo_volume", "stereo_volume")
+        self._create_output_pad("volume", "float")
+        self._create_output_pad("stereo_volume", "(float, float)")
 
         self.thread(self._thread)
 
@@ -54,5 +54,5 @@ class RGB_LED_Music_Controller(Object):
             rvolume = rmean / max_mean
             volume = (lvolume + rvolume) / 2
 
-            self._write_output_pad("RGpulse", (volume, volume, volume))
+            self._write_output_pad("volume", volume)
             self._write_output_pad("stereo_volume", (lvolume, rvolume))
