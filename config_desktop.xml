@@ -13,6 +13,7 @@
         <desktop_nucleo         class="devices.diy.shared_serial_port" device="/dev/ttyACM*, serial=066EFF494956805087151128" baudrate="38400" />
 
         <desktop_tabletop_led_strip class="devices.diy.nucleo_rgb_led" nucleo="desktop_nucleo" number="0" />
+        <led_controller class="devices.light.rgb_led_controller" />
 
         <hdmi_matrix class="devices.multimedia.monoprice_hdmi_4x4_matrix" device="/dev/ttyS0" />
     </objects>

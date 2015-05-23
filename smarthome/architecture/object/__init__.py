@@ -263,7 +263,7 @@ class Object(object):
 
         dst_pad_desc = self.__container.object_manager.objects[self._name].get_input_pad(pad)
         if dst_pad_desc["has_disconnected_value"]:
-            self.__container.object_manager.worker_pool.run_task(
+            self.__container.worker_pool.run_task(
                 lambda: self.__container.object_manager._write_object_pad(self._name, pad, dst_pad_desc["disconnected_value"]))
 
         self.__container.object_manager.on_object_pad_disconnected(src_object, src_pad, self._name, pad)

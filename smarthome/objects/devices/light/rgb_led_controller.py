@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 from collections import OrderedDict
 import time
 
-from smarthome.architecture.object import Object, method, prop, output_pad
+from smarthome.architecture.object import Object, method, prop, input_pad, output_pad
 
 __all__ = [b"RGB_LED_Controller"]
 
@@ -22,6 +22,7 @@ class RGB_LED_Controller(Object):
 
     def init(self):
         self.generator = None
+        self.brightness = 1
         self.sleep = 0.01
 
     @prop(receive_after=True)
@@ -42,6 +43,10 @@ class RGB_LED_Controller(Object):
             next_generator = "white"
         self.set_property("generator", next_generator)
 
+    @input_pad("float", disconnected_value=1)
+    def brightness(self, value):
+        self.brightness = value
+
     @prop(receive_after=True)
     def set_speed(self, speed):
         self.sleep = 1 / speed
@@ -50,7 +55,7 @@ class RGB_LED_Controller(Object):
     def pad(self):
         while True:
             if self.generator:
-                yield map(self._brightness_to_pwm, self.generator.next())
+                yield map(self._brightness_to_pwm, map(lambda x: x * self.brightness, self.generator.next()))
 
             time.sleep(self.sleep)
 

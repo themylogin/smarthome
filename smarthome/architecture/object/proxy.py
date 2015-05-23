@@ -137,7 +137,7 @@ class RemoteObject(ProxyObject):
         super(RemoteObject, self).__init__(name)
         self._inspection = description["inspection"]
         self._properties_values = description["properties_values"]
-        self._incoming_pad_connections = defaultdict(set, map(lambda (k, v): (k, set(v)),
+        self._incoming_pad_connections = defaultdict(set, map(lambda (k, v): (k, set(map(tuple, v))),
                                                               description["incoming_pad_connections"].items()))
         self._container = container
         self._peer_name = peer_name
