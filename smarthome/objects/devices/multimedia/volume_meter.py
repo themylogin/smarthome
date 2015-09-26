@@ -2,9 +2,10 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import alsaaudio
+import math
 import numpy
 import scipy
-from scipy.signal import firwin
+from scipy.signal import butter, lfilter
 
 from smarthome.architecture.object import Object, prop
 
@@ -13,8 +14,7 @@ __all__ = [b"Volume_Meter"]
 
 class Volume_Meter(Object):
     def create(self):
-        self.numtaps = 101
-        self.cutoff = 0.02
+        self.cutoff = 2000
         self._update_filter()
 
         self._create_output_pad("volume", "float")
@@ -24,17 +24,12 @@ class Volume_Meter(Object):
         self.thread(self._thread)
 
     @prop(receive_after=True)
-    def set_numtaps(self, value):
-        self.numtaps = value
-        self._update_filter()
-
-    @prop(receive_after=True)
     def set_cutoff(self, value):
         self.cutoff = value
         self._update_filter()
 
     def _update_filter(self):
-        self.filter = firwin(self.numtaps, self.cutoff)
+        self.filter = butter(5, self.cutoff / (44100 / 2))
 
     def _thread(self):
         self.input = alsaaudio.PCM(alsaaudio.PCM_CAPTURE)
@@ -53,8 +48,8 @@ class Volume_Meter(Object):
             lwave = wave[0::2]
             rwave = wave[1::2]
 
-            lwave = scipy.convolve(lwave, self.filter, "same")
-            rwave = scipy.convolve(rwave, self.filter, "same")
+            lwave = lfilter(self.filter[0], self.filter[1], lwave)
+            rwave = lfilter(self.filter[0], self.filter[1], rwave)
 
             lmean = numpy.abs(lwave).mean()
             rmean = numpy.abs(rwave).mean()
@@ -66,6 +61,9 @@ class Volume_Meter(Object):
             lvolume = lmean / max_mean
             rvolume = rmean / max_mean
             volume = (lvolume + rvolume) / 2
+
+            volume = math.log10(1 + 9 * volume)
+            volume = max(volume, 0.5)
 
             self._write_output_pad("volume", volume)
             self._write_output_pad("stereo_volume", (lvolume, rvolume))
