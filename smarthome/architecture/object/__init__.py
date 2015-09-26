@@ -74,6 +74,8 @@ class Object(object):
                     self._set_property_setter(property_name, meth, **self._property_attrs(meth, "setter_"))
                 if hasattr(meth, "smarthome_property_toggleable"):
                     self._set_property_toggleable(property_name)
+                if hasattr(meth, "smarthome_property_persistent"):
+                    self._set_property_persistent(property_name, **self._property_attrs(meth, "persistent_"))
 
         for name, meth in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(meth, "smarthome_property_change_observer"):
@@ -152,6 +154,8 @@ class Object(object):
         self._properties[name] = {"readable": False,
                                   "writable": False,
                                   "toggleable": False,
+                                  "persistent": False,
+                                  "call_setter_on_init": False,
                                   "has_value": value != _NoDefaultPropertyValue,
                                   "value": value if value != _NoDefaultPropertyValue else None}
 
@@ -181,6 +185,10 @@ class Object(object):
 
         if hasattr(self, "_methods"):
             self._methods.add(method_name)
+
+    def _set_property_persistent(self, name, call_setter):
+        self._properties[name]["persistent"] = True
+        self._properties[name]["call_setter_on_init"] = call_setter
 
     def _property_attrs(self, meth, attr_prefix):
         attr_prefix = "smarthome_property_" + attr_prefix
@@ -333,6 +341,9 @@ class Object(object):
             else:
                 self.__container.object_manager.on_object_property_appeared(self._name, name, value)
 
+            if property.get("persistent"):
+                self.datastore["_property_%s" % name] = value
+
     def query_and_wait_for_property(self, name):
         property = self._properties[name]
 
@@ -380,6 +391,22 @@ class Object(object):
         self.__initialized = True
 
         for name, property in self._properties.iteritems():
+            if property.get("persistent"):
+                try:
+                    value = self.datastore["_property_%s"]
+                except KeyError:
+                    pass
+                else:
+                    self.receive_property(name, value)
+
+            if property.get("call_setter_on_init"):
+                try:
+                    value = self.get_property(name)
+                except PropertyHasNoValueException:
+                    pass
+                else:
+                    self.__container.worker_pool.run_task(functools.partial(self.set_property, name, value))
+
             if property.get("query"):
                 self.__container.worker_pool.run_task(functools.partial(self.query_and_wait_for_property, name))
 
@@ -484,7 +511,16 @@ def prop(*args, **kwargs):
         else:
             raise Exception("@prop called without arguments")
 
-def _do_prop(meth, toggleable=False, **kwargs):
+def _do_prop(meth, toggleable=False, persistent=False, **kwargs):
+    meth.smarthome_property = True
+
+    if toggleable:
+        meth.smarthome_property_toggleable = True
+
+    if persistent:
+        meth.smarthome_property_persistent = True
+        meth.smarthome_property_persistent_call_setter = kwargs.pop("call_setter")
+
     if meth.func_name.startswith("get_"):
         if meth.func_code.co_argcount != 1:
             raise TypeError("Property getter must not take arguments")
@@ -508,12 +544,7 @@ def _do_prop(meth, toggleable=False, **kwargs):
         meth.smarthome_property_name = meth.__name__[len("set_"):]
 
     else:
-        raise NameError("Property-decorated method names must start with get_ or set_")
-
-    meth.smarthome_property = True
-
-    if toggleable:
-        meth.smarthome_property_toggleable = True
+        raise NameError("Property-decorated method names must start with get_, set_ or _query")
 
     return meth
 
