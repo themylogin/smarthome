@@ -23,6 +23,9 @@ class NAD_C355BEE(Object):
                           "SpeakerB": "speaker_b",
                           "Tape1": "tape1_monitor"}
 
+    VOLUME_UP_TO_MAX = 34.5
+    VOLUME_DOWN_TO_MIN = 38
+
     def create(self):
         for code, property_name in self.BOOLEAN_PROPERTIES.iteritems():
             self._create_property(property_name)
@@ -31,6 +34,8 @@ class NAD_C355BEE(Object):
             self._set_property_toggleable(property_name)
 
         self.serial_lock = self.lock()
+
+        self.relative_volume = 0
 
     def init(self):
         with self.serial_lock:
@@ -63,10 +68,25 @@ class NAD_C355BEE(Object):
     @method
     def increase_volume(self):
         self._execute_command("Main.Volume+")
+        self.relative_volume += 1.0
 
     @method
     def decrease_volume(self):
         self._execute_command("Main.Volume-")
+        self.relative_volume -= self.VOLUME_UP_TO_MAX / self.VOLUME_DOWN_TO_MIN
+
+    @method
+    def save_volume(self):
+        self.relative_volume = 0
+
+    @method
+    def restore_volume(self, precision=0.25):
+        while abs(self.relative_volume) > precision:
+            if self.relative_volume > 0:
+                self.decrease_volume()
+            else:
+                self.increase_volume()
+            time.sleep(0.5)
 
     @prop
     def query_source(self):
