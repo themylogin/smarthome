@@ -101,4 +101,13 @@
     <on property="kitchen_work_zone_light.on">
         <set property="nad.speaker_b" value="kitchen_work_zone_light.on" />
     </on>
+
+    <routines>
+        <toggle_room_work_light hotkey="W-F3">
+            <call method="room_work_light.toggle_on" />
+        </toggle_room_work_light>
+        <toggle_room_recreation_light hotkey="W-F4">
+            <call method="room_recreation_light.toggle_on" />
+        </toggle_room_recreation_light>
+    </routines>
 </smarthome>

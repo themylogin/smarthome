@@ -18,8 +18,10 @@ class HotkeyManager(object):
     def bind(self, hotkey, func):
         gtk_hotkey = self._gtk_hotkey(hotkey)
         bound = Keybinder.bind(gtk_hotkey, lambda *args: self._execute_hotkey(hotkey, func))
-        if not bound:
-            raise ValueError("Unable to bind hotkey %r (gtk_hotkey = %r)" % (hotkey, gtk_hotkey))
+        if bound:
+            logger.debug("Bound hotkey %r (gtk_hotkey = %r)", hotkey, gtk_hotkey)
+        else:
+            logger.error("Unable to bind hotkey %r (gtk_hotkey = %r)", hotkey, gtk_hotkey)
 
     def unbind(self, hotkey):
         Keybinder.unbind(self._gtk_hotkey(hotkey))
