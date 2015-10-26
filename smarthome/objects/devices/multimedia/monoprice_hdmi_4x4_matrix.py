@@ -45,6 +45,7 @@ class Monoprice_HDMI_4x4_Matrix(Object):
                 time.sleep(0.2)
 
     @method
-    def flush(self):
-        for output in range(1, 5):
+    def flush(self, outputs=None):
+        outputs = outputs or range(1, 5)
+        for output in outputs:
             self._set_output(output, self.get_property("output_%d" % output), True)
