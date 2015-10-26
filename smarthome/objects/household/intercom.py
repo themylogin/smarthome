@@ -5,6 +5,8 @@ import errno
 import fcntl
 import logging
 import os
+import prctl
+import signal
 import subprocess
 import sys
 import time
@@ -58,7 +60,8 @@ class Intercom(Object):
         while True:
             try:
                 process = subprocess.Popen([listener, self.args["audio_input"]], stdin=subprocess.PIPE,
-                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           preexec_fn=lambda: prctl.set_pdeathsig(signal.SIGKILL))
 
                 fd = process.stdout.fileno()
                 fl = fcntl.fcntl(fd, fcntl.F_GETFL)

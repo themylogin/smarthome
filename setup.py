@@ -23,6 +23,7 @@ setup(
         "paramiko",
         "pyephem",
         "pyserial",
+        "python-prctl",
         "requests",
         "websocket-client",
         "werkzeug",
