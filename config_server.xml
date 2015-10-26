@@ -109,5 +109,16 @@
         <toggle_room_recreation_light hotkey="W-F4">
             <call method="room_recreation_light.toggle_on" />
         </toggle_room_recreation_light>
+
+        <toggle_everything_off hotkey="W-F6">
+            <call method="hall_loudspeakers.play" path="os.path.join(DATA_DIR, 'sound/logoff.wav')">
+                <finish>
+                    <set property="all_lightning.on" value="False" />
+                </finish>
+            </call>
+        </toggle_everything_off>
+        <toggle_everything_off_silently hotkey="C-W-F6">
+            <set property="all_lightning.on" value="False" />
+        </toggle_everything_off_silently>
     </routines>
 </smarthome>
