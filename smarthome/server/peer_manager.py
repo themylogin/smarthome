@@ -16,7 +16,7 @@ from smarthome.zeroconf.discoverer import ServiceDiscoverer
 logger = logging.getLogger(__name__)
 
 
-class Peer(namedtuple("Peer", ["manager", "http_url", "ws_url", "possessions"])):
+class Peer(namedtuple("Peer", ["manager", "http_url", "ws_url"])):
     pass
 
 
@@ -32,6 +32,7 @@ class PeerManager(object):
         self.peers = {}
         self.peers_control_connections = {}
         self.peers_control_connections_lock = threading.Lock()
+        self.on_peers_updated_lock = threading.Lock()
 
     def _on_peer_resolved(self, service):
         if service.name == self.my_name:
@@ -41,21 +42,10 @@ class PeerManager(object):
             logger.info("Connection with peer %s already exists", service.name)
             return
 
-        try:
-            possessions = requests.get(service.url + "/internal/my_possessions").json()
-        except Exception:
-            logger.error("Unable to receive possessions from peer %s, retrying in 1 second", service.url, exc_info=True)
-            self.container.worker_pool.run_task(lambda: (time.sleep(1), self._on_peer_resolved(service)))
-        else:
-            self.peers[service.name] = Peer(self,
-                                            service.url,
-                                            service.url.replace("http://", "ws://"),
-                                            possessions)
-
-            start_daemon_thread(self._peer_connection_thread, service.name)
-
-            self.container.object_manager.on_peers_updated()
-            self.container.remote_hotkey_manager.on_peers_updated()
+        self.peers[service.name] = Peer(self,
+                                        service.url,
+                                        service.url.replace("http://", "ws://"))
+        start_daemon_thread(self._peer_connection_thread, service.name)
 
     def _on_discoverer_error(self, error):
         logger.error("Service discoverer error: %s", error)
@@ -65,7 +55,12 @@ class PeerManager(object):
         while True:
             try:
                 if ws is None:
-                    ws = websocket.create_connection(self.peers[peer_name].ws_url + "/internal/my_events")
+                    ws = websocket.create_connection(self.peers[peer_name].ws_url + "/internal")
+                    self.peers[peer_name].possessions = themyutils.json.loads(ws.recv())
+
+                    with self.on_peers_updated_lock:
+                        self.container.object_manager.on_peers_updated()
+                        self.container.remote_hotkey_manager.on_peers_updated()
 
                 message = themyutils.json.loads(ws.recv())
                 self.container.event_transceiver.receive_remote_event(message["event"], message["args"])

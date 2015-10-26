@@ -50,8 +50,7 @@ class WebServer(object):
         self.container.object_manager.add_object_pad_connection_observer(self)
 
         self.url_map = Map([
-            Rule("/internal/my_possessions", endpoint="my_possessions"),
-            Rule("/internal/my_events", endpoint="my_events"),
+            Rule("/internal", endpoint="internal"),
 
             Rule("/control", endpoint="control"),
             Rule("/objects", endpoint="watch_objects"),
@@ -110,13 +109,7 @@ class WebServer(object):
             waiter.send()
 
     @json_response
-    def execute_my_possessions(self, request):
-        return {"objects": self._dump_objects(lambda object: isinstance(object, LocalObject)),
-                "routines": {name: {"hotkeys": routine.hotkeys}
-                             for name, routine in self.container.routine_manager.local_routines.iteritems()}}
-
-    @json_response
-    def execute_my_events(self, request):
+    def execute_internal(self, request):
         ws = request.environ.get("wsgi.websocket")
         if ws is None:
             raise MethodNotAllowed("This endpoint supports only websockets requests")
@@ -124,6 +117,11 @@ class WebServer(object):
         waiter = self.create_waiter()
         queue = Queue.Queue()
         self.my_events_waiters_queues.append((waiter, queue))
+
+        ws.send(themyutils.json.dumps({
+            "objects": self._dump_objects(lambda object: isinstance(object, LocalObject)),
+            "routines": {name: {"hotkeys": routine.hotkeys}
+                         for name, routine in self.container.routine_manager.local_routines.iteritems()}}))
 
         try:
             while True:
