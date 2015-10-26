@@ -21,7 +21,7 @@ class RoutineManager(object):
 
     def call_routine(self, name):
         if name in self.local_routines:
-            return self.local_routines[name]()
+            return self.local_routines[name].func()
 
         for peer_name, peer in self.container.peer_manager.peers.iteritems():
             if name in peer.possessions["routines"]:

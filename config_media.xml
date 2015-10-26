@@ -13,7 +13,16 @@
     </objects>
 
     <routines>
-        <toggle_watch_projector>
+        <!--
+            ########  ########   #######        ## ########  ######  ########  #######  ########
+            ##     ## ##     ## ##     ##       ## ##       ##    ##    ##    ##     ## ##     ##
+            ##     ## ##     ## ##     ##       ## ##       ##          ##    ##     ## ##     ##
+            ########  ########  ##     ##       ## ######   ##          ##    ##     ## ########
+            ##        ##   ##   ##     ## ##    ## ##       ##          ##    ##     ## ##   ##
+            ##        ##    ##  ##     ## ##    ## ##       ##    ##    ##    ##     ## ##    ##
+            ##        ##     ##  #######   ######  ########  ######     ##     #######  ##     ##
+        -->
+        <toggle_watch_projector hotkey="W-F5 (local)XF86HomePage">
             <if condition="projector.on == False">
                 <async>
                     <set property="projector.on" value="True" />
@@ -24,5 +33,12 @@
                 <set property="projector_smooth.on" value="False" />
             </else>
         </toggle_watch_projector>
+        <toggle_projector hotkey="C-W-F5 (local)W-XF86HomePage">
+            <call method="projector_smooth.toggle_on" />
+        </toggle_projector>
+
+        <toggle_projector_source hotkey="W-F12">
+            <call method="projector.toggle_hdmi_source" />
+        </toggle_projector_source>
     </routines>
 </smarthome>

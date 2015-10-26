@@ -15,8 +15,10 @@ from smarthome.server.container import Container
 from smarthome.server.database import Database
 from smarthome.server.imported_promises_manager import ImportedPromisesManager
 from smarthome.server.exported_promises_manager import ExportedPromisesManager
+from smarthome.server.hotkey_manager import HotkeyManager
 from smarthome.server.object_manager import ObjectManager
 from smarthome.server.peer_manager import PeerManager
+from smarthome.server.remote_hotkey_manager import RemoteHotkeyManager
 from smarthome.server.routine_manager import RoutineManager
 from smarthome.server.themylog_publisher import ThemylogPublisher
 from smarthome.server.web_server import WebServer
@@ -40,6 +42,8 @@ def setup_server(name, bus, config):
     container.peer_manager = PeerManager(container, name, bus)
     container.object_manager = ObjectManager(container)
     container.routine_manager = RoutineManager(container)
+    container.hotkey_manager = HotkeyManager(container)
+    container.remote_hotkey_manager = RemoteHotkeyManager(container)
 
     container.web_server = WebServer(container, "0.0.0.0", 46408)
 

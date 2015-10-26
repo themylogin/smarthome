@@ -20,20 +20,74 @@
     </objects>
 
     <routines>
-        <use_linux>
+        <!--
+            ########  ########  ######  ##    ## ########  #######  ########
+            ##     ## ##       ##    ## ##   ##     ##    ##     ## ##     ##
+            ##     ## ##       ##       ##  ##      ##    ##     ## ##     ##
+            ##     ## ######    ######  #####       ##    ##     ## ########
+            ##     ## ##             ## ##  ##      ##    ##     ## ##
+            ##     ## ##       ##    ## ##   ##     ##    ##     ## ##
+            ########  ########  ######  ##    ##    ##     #######  ##
+        -->
+        <toggle_desktop_screens hotkey="W-F1">
+            <call method="desktop_screens_smooth.toggle_on" />
+        </toggle_desktop_screens>
+        <toggle_desktop_light hotkey="W-F2">
+            <call method="desktop_light.toggle_on" />
+        </toggle_desktop_light>
+
+        <!--
+            ##     ## ########  ##     ## ####    ##     ##    ###    ######## ########  #### ##     ##
+            ##     ## ##     ## ###   ###  ##     ###   ###   ## ##      ##    ##     ##  ##   ##   ##
+            ##     ## ##     ## #### ####  ##     #### ####  ##   ##     ##    ##     ##  ##    ## ##
+            ######### ##     ## ## ### ##  ##     ## ### ## ##     ##    ##    ########   ##     ###
+            ##     ## ##     ## ##     ##  ##     ##     ## #########    ##    ##   ##    ##    ## ##
+            ##     ## ##     ## ##     ##  ##     ##     ## ##     ##    ##    ##    ##   ##   ##   ##
+            ##     ## ########  ##     ## ####    ##     ## ##     ##    ##    ##     ## #### ##     ##
+        -->
+        <use_linux hotkey="W-F9">
             <set property="hdmi_matrix.output_1" value="1" />
             <set property="hdmi_matrix.output_2" value="2" />
             <set property="hdmi_matrix.output_3" value="3" />
         </use_linux>
-        <use_windows>
+        <use_windows hotkey="W-F10">
             <set property="hdmi_matrix.output_1" value="2" />
             <set property="hdmi_matrix.output_2" value="1" />
             <set property="hdmi_matrix.output_3" value="3" />
         </use_windows>
-        <use_hummingboard>
+        <use_hummingboard hotkey="W-F11">
             <set property="hdmi_matrix.output_1" value="4" />
             <set property="hdmi_matrix.output_2" value="2" />
             <set property="hdmi_matrix.output_3" value="3" />
         </use_hummingboard>
+
+        <project_windows hotkey="C-W-F9">
+            <set method="hdmi_matrix.output_4" value="1" />
+        </project_windows>
+        <project_linux_1 hotkey="C-W-F10">
+            <set method="hdmi_matrix.output_4" value="2" />
+        </project_linux_1>
+        <project_linux_2 hotkey="C-W-F11">
+            <set method="hdmi_matrix.output_4" value="3" />
+        </project_linux_2>
+        <project_hummingboard hotkey="C-W-F12">
+            <set method="hdmi_matrix.output_4" value="4" />
+        </project_hummingboard>
+
+        <flush_windows hotkey="A-W-F9">
+            <call method="hdmi_matrix.flush" outputs="[1]" />
+        </flush_windows>
+        <flush_linux_1 hotkey="A-W-F10">
+            <call method="hdmi_matrix.flush" outputs="[2]" />
+        </flush_linux_1>
+        <flush_linux_2 hotkey="A-W-F11">
+            <call method="hdmi_matrix.flush" outputs="[3]" />
+        </flush_linux_2>
+        <flush_hummingboard hotkey="A-W-F12">
+            <call method="hdmi_matrix.flush" outputs="[4]" />
+        </flush_hummingboard>
+        <flush_hdmi_matrix hotkey="A-W-BackSpace">
+            <call method="hdmi_matrix.flush" />
+        </flush_hdmi_matrix>
     </routines>
 </smarthome>

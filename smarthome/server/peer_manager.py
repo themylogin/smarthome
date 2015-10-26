@@ -55,6 +55,7 @@ class PeerManager(object):
             start_daemon_thread(self._peer_connection_thread, service.name)
 
             self.container.object_manager.on_peers_updated()
+            self.container.remote_hotkey_manager.on_peers_updated()
 
     def _on_discoverer_error(self, error):
         logger.error("Service discoverer error: %s", error)

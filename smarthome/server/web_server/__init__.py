@@ -112,7 +112,8 @@ class WebServer(object):
     @json_response
     def execute_my_possessions(self, request):
         return {"objects": self._dump_objects(lambda object: isinstance(object, LocalObject)),
-                "routines": self.container.routine_manager.local_routines.keys()}
+                "routines": {name: {"hotkeys": routine.hotkeys}
+                             for name, routine in self.container.routine_manager.local_routines.iteritems()}}
 
     @json_response
     def execute_my_events(self, request):
