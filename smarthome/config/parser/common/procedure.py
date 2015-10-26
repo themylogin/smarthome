@@ -43,19 +43,23 @@ def eval_procedure(container, procedure):
                 eval_next_else = True
 
         elif command.tag == "call":
-            object, method = command.get("method").split(".")
-            meth = getattr(container.object_manager.objects[object], method)
-            result = meth(**{k: parse_logic_expression(v).expression(container)
-                             for k, v in command.attrib.iteritems()
-                             if k not in ("method",)})
+            if command.get("method"):
+                object, method = command.get("method").split(".")
+                meth = getattr(container.object_manager.objects[object], method)
+                result = meth(**{k: parse_logic_expression(v).expression(container)
+                                 for k, v in command.attrib.iteritems()
+                                 if k not in ("method",)})
 
-            if command.getchildren():
-                if not isinstance(result, Promise):
-                    raise ValueError("Command has children but did not returned a Promise")
+                if command.getchildren():
+                    if not isinstance(result, Promise):
+                        raise ValueError("Command has children but did not returned a Promise")
 
-                for child in command.getchildren():
-                    getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, container,
-                                                                           child.getchildren()))
+                    for child in command.getchildren():
+                        getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, container,
+                                                                               child.getchildren()))
+
+            elif command.get("routine"):
+                container.routine_manager.call_routine(command.get("routine"))
 
         elif command.tag == "set":
             object, property = command.get("property").split(".")
@@ -65,6 +69,26 @@ def eval_procedure(container, procedure):
 
         elif command.tag == "async":
             container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren()))
+
+        elif command.tag == "connect_pad":
+            dst_object = container.object_manager.objects[command.get("dst_object")]
+            dst_object.connect_to_pad(command.get("dst_pad"), command.get("src_object"), command.get("src_pad"))
+
+        elif command.tag == "disconnect_pad":
+            dst_object = container.object_manager.objects[command.get("dst_object")]
+            dst_object.disconnect_from_pad(command.get("dst_pad"), command.get("src_object"), command.get("src_pad"))
+
+        elif command.tag == "toggle_pad_connection":
+            dst_object = container.object_manager.objects[command.get("dst_object")]
+            dst_pad = command.get("dst_pad")
+            if len(dst_object.dump_incoming_pad_connections().get(dst_pad, [])) == 0:
+                dst_object.connect_to_pad(dst_pad, command.get("src_object"), command.get("src_pad"))
+            else:
+                dst_object.disconnect_all_from_pad(dst_pad)
+
+        elif command.tag == "disconnect_all_from_pad":
+            dst_object = container.object_manager.objects[command.get("dst_object")]
+            dst_object.disconnect_all_from_pad(command.get("dst_pad"))
 
         else:
             raise ValueError("Unknown command: %s" % command.tag)

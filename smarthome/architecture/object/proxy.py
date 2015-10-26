@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, unicode_literals
 from collections import defaultdict
 import functools
 import logging
-import sys
 
 from smarthome.architecture.deferred import Deferred, Promise
 from smarthome.architecture.object.result import *

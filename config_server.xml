@@ -113,12 +113,13 @@
         <toggle_everything_off hotkey="W-F6">
             <call method="hall_loudspeakers.play" path="os.path.join(DATA_DIR, 'sound/logoff.wav')">
                 <finish>
-                    <set property="all_lightning.on" value="False" />
+                    <call routine="toggle_everything_off_silently" />
                 </finish>
             </call>
         </toggle_everything_off>
         <toggle_everything_off_silently hotkey="C-W-F6">
             <set property="all_lightning.on" value="False" />
+            <call routine="turn_off_all_led_strips" />
         </toggle_everything_off_silently>
     </routines>
 </smarthome>
