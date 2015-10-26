@@ -44,13 +44,13 @@ class SerialBitVector(Object):
                 self._read_device()
             elif time.time() - self.last_recv > self.MANUAL_POLL_INTERVAL:
                 self.serial.flushInput()
-                self.serial.write("?\n")
+                self.serial.write(b"?\n")
                 self._read_device()
 
     def _set_bit(self, bit, value):
         if self.get_property("bit%d" % bit) != value:
             with self.serial_lock:
-                self.serial.write("t%d\n" % (bit + 1))
+                self.serial.write(b"t%d\n" % (bit + 1))
 
             wait_started_at = time.time()
             while time.time() - wait_started_at < self.WRITE_REACTION_TIMEOUT:
