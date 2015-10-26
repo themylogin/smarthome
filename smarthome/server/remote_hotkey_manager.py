@@ -15,7 +15,6 @@ class RemoteHotkeyManager(object):
         self.remote_hotkeys = set()
 
     def on_peers_updated(self):
-        self.remote_hotkeys = set()
         for peer in self.container.peer_manager.peers.itervalues():
             for routine_name, routine_desc in peer.possessions["routines"].iteritems():
                 for hotkey in routine_desc["hotkeys"]:
