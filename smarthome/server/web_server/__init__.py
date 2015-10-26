@@ -35,6 +35,10 @@ class WebServer(object):
 
         self.my_events_waiters_queues = []
 
+        self.object_change_waiters = []
+        self.on_object_changed = lambda *args: self._notify_waiters(self.object_change_waiters)
+        self.container.object_manager.add_object_observer(self)
+
         self.errors_change_waiters = []
         self.on_object_error_changed = lambda *args: self._notify_waiters(self.errors_change_waiters)
         self.container.object_manager.add_object_error_observer(self)
@@ -207,6 +211,10 @@ class WebServer(object):
             dst_object = self.container.object_manager.objects.get(args["dst_object"])
             return dst_object.disconnect_from_pad(args["dst_pad"], args["src_object"], args["src_pad"])
 
+        if command == "disconnect_all_from_pad":
+            dst_object = self.container.object_manager.objects.get(args["dst_object"])
+            return dst_object.disconnect_all_from_pad(args["dst_pad"])
+
         if command == "call_routine":
             return self.container.routine_manager.call_routine(args["name"])
 
@@ -217,6 +225,7 @@ class WebServer(object):
             return self._dump_objects()
 
         waiter = self.create_waiter()
+        self.object_change_waiters.append(waiter)
         self.errors_change_waiters.append(waiter)
         self.properties_change_waiters.append(waiter)
         self.pad_connection_change_waiters.append(waiter)
@@ -230,6 +239,7 @@ class WebServer(object):
         except self.WebSocketError:
             pass
         finally:
+            self.object_change_waiters.remove(waiter)
             self.errors_change_waiters.remove(waiter)
             self.properties_change_waiters.remove(waiter)
             self.pad_connection_change_waiters.remove(waiter)

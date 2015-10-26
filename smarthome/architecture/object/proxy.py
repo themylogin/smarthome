@@ -63,6 +63,9 @@ class ProxyObject(object):
     def disconnect_from_pad(self, pad, src_object, src_pad):
         raise NotImplementedError
 
+    def disconnect_all_from_pad(self, pad):
+        raise NotImplementedError
+
     def write_pad(self, name, value):
         raise NotImplementedError
 
@@ -107,6 +110,9 @@ class LocalObject(ProxyObject):
 
     def disconnect_from_pad(self, pad, src_object, src_pad):
         self._object.disconnect_from_pad(pad, src_object, src_pad)
+
+    def disconnect_all_from_pad(self, pad):
+        self._object.disconnect_all_from_pad(pad)
 
     def write_pad(self, name, value):
         return self._object.write_pad(name, value)
@@ -162,7 +168,7 @@ class RemoteObject(ProxyObject):
     def get_input_pad(self, name):
         return self._inspection["input_pads"].get(name)
 
-    def get_output_pad(self, name,):
+    def get_output_pad(self, name):
         return self._inspection["output_pads"].get(name)
 
     def connect_to_pad(self, dst_pad, src_object, src_pad):
@@ -176,6 +182,10 @@ class RemoteObject(ProxyObject):
                                                 "src_pad": src_pad,
                                                 "dst_object": self._name,
                                                 "dst_pad": dst_pad})
+
+    def disconnect_all_from_pad(self, dst_pad):
+        return self._control("disconnect_from_pad", {"dst_object": self._name,
+                                                     "dst_pad": dst_pad})
 
     def write_pad(self, name, value):
         raise TypeError("You should not write to remote object pads")

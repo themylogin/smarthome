@@ -42,9 +42,11 @@ class PeerManager(object):
             logger.info("Connection with peer %s already exists", service.name)
             return
 
-        self.peers[service.name] = Peer(self,
-                                        service.url,
-                                        service.url.replace("http://", "ws://"))
+        peer = Peer(self, service.url, service.url.replace("http://", "ws://"))
+        peer.possessions = {"objects": {},
+                            "routines": []}
+
+        self.peers[service.name] = peer
         start_daemon_thread(self._peer_connection_thread, service.name)
 
     def _on_discoverer_error(self, error):

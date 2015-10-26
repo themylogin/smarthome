@@ -15,7 +15,8 @@ __all__ = [b"ObjectManager"]
 logger = logging.getLogger(__name__)
 
 
-class ObjectManager(Observable("object_error_observer", ["object_error_changed"]),
+class ObjectManager(Observable("object_observer", ["object_changed"]),
+                    Observable("object_error_observer", ["object_error_changed"]),
                     Observable("object_signal_observer", ["object_signal_emitted"]),
                     Observable("object_property_observer", ["object_property_changed", "object_property_appeared"]),
                     Observable("object_pad_connection_observer", ["object_pad_connected", "object_pad_disconnected"]),
@@ -56,6 +57,8 @@ class ObjectManager(Observable("object_error_observer", ["object_error_changed"]
         for object_name in unavailable_objects:
             logger.info("Object %s is now unavailable", object_name)
             self.objects[object_name] = UnavailableObject(object_name)
+
+        self.notify_object_changed()
 
     def on_object_error(self, name, error):
         if not (self.objects_errors[name] is None and error is None):

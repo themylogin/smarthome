@@ -276,6 +276,10 @@ class Object(object):
 
         self.__container.object_manager.on_object_pad_disconnected(src_object, src_pad, self._name, pad)
 
+    def disconnect_all_from_pad(self, pad):
+        for src_object, src_pad in list(self._incoming_pad_connections[pad]):
+            self.disconnect_from_pad(pad, src_object, src_pad)
+
     def write_pad(self, name, value):
         return self.__perform_action(lambda: self._input_pads[name]["receiver"](value))
 
