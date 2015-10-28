@@ -397,7 +397,7 @@ class Object(object):
         for name, property in self._properties.iteritems():
             if property.get("persistent"):
                 try:
-                    value = self.datastore["_property_%s"]
+                    value = self.datastore["_property_%s" % name]
                 except KeyError:
                     pass
                 else:
