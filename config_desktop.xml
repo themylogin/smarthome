@@ -62,16 +62,16 @@
         </use_hummingboard>
 
         <project_windows hotkey="C-W-F9">
-            <set method="hdmi_matrix.output_4" value="1" />
+            <set property="hdmi_matrix.output_4" value="1" />
         </project_windows>
         <project_linux_1 hotkey="C-W-F10">
-            <set method="hdmi_matrix.output_4" value="2" />
+            <set property="hdmi_matrix.output_4" value="2" />
         </project_linux_1>
         <project_linux_2 hotkey="C-W-F11">
-            <set method="hdmi_matrix.output_4" value="3" />
+            <set property="hdmi_matrix.output_4" value="3" />
         </project_linux_2>
         <project_hummingboard hotkey="C-W-F12">
-            <set method="hdmi_matrix.output_4" value="4" />
+            <set property="hdmi_matrix.output_4" value="4" />
         </project_hummingboard>
 
         <flush_windows hotkey="A-W-F9">
