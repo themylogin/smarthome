@@ -44,7 +44,7 @@ class PeerManager(object):
 
         peer = Peer(self, service.url, service.url.replace("http://", "ws://"))
         peer.possessions = {"objects": {},
-                            "routines": []}
+                            "routines": {}}
 
         self.peers[service.name] = peer
         start_daemon_thread(self._peer_connection_thread, service.name)
