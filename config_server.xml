@@ -43,6 +43,8 @@
 
         <!-- Ванная -->
         <bathroom_door class="household.door" property="server_lpt.PaperOut" />
+        <bathroom_serial class="devices.diy.shared_serial_port" device="/dev/ttyS4" baudrate="9600" />>
+        <bathroom_led_strip class="devices.diy.stm32f103r8t6_rgb_led" serial="bathroom_serial" />
 
         <!-- Группы электроприборов -->
         <all_lightning_except_work      class="devices.generic.on_off_device_group"
