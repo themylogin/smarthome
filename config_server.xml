@@ -99,6 +99,9 @@
     <on signal="bathroom_door.opened">
         <set property="bathroom_light.on" value="True" />
     </on>
+    <on property="bathroom_arduino.movement" value="True">
+        <set property="bathroom_light.on" value="True" />
+    </on>
 
     <!-- Управление музыкой на кухне -->
     <on property="kitchen_work_zone_light.on">

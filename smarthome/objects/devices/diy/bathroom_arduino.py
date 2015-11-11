@@ -30,7 +30,7 @@ class Bathroom_Arduino(Object):
             m = re.match("(PIR|Humidity|Temperature): ([0-9\.]+)", d)
             if m:
                 if m.group(1) == "PIR":
-                    self.receive_property("movement", True if m.group(1) == "1" else False)
+                    self.receive_property("movement", True if m.group(2) == "1" else False)
                 elif m.group(1) == "Humidity":
                     self._average_property("humidity", float(m.group(2)), 30, 0.4)
                 elif m.group(1) == "Temperature":

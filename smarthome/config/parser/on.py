@@ -41,6 +41,15 @@ def handle_signal(container, on_xml, **kwargs):
 
 def create_property_change_observer(container, on_xml):
     def observer(old_value, new_value):
-        eval_procedure(container, on_xml.getchildren())
+        run = True
+
+        if on_xml.get("value") is not None:
+            run = run and (parse_logic_expression(on_xml.get("value")).expression(container) == new_value)
+
+        if on_xml.get("old_value") is not None:
+            run = run and (parse_logic_expression(on_xml.get("old_value")).expression(container) == old_value)
+
+        if run:
+            eval_procedure(container, on_xml.getchildren())
 
     return observer
