@@ -44,6 +44,7 @@
         <!-- Ванная -->
         <bathroom_door class="household.door" property="server_lpt.PaperOut" />
         <bathroom_serial class="devices.diy.shared_serial_port" device="/dev/ttyS4" baudrate="9600" />>
+        <bathroom_arduino class="devices.diy.bathroom_arduino" serial="bathroom_serial" />
         <bathroom_led_strip class="devices.diy.stm32f103r8t6_rgb_led" serial="bathroom_serial" />
 
         <!-- Группы электроприборов -->

@@ -25,3 +25,7 @@ class SharedSerialPort(Object):
     def write(self, bytes):
         with self.serial_lock:
             self.serial.write(bytes)
+
+    @method
+    def readline(self, *args, **kwargs):
+        return self.serial.readline(*args, **kwargs)
