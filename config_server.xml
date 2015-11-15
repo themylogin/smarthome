@@ -103,6 +103,12 @@
         <set property="bathroom_light.on" value="True" />
     </on>
 
+    <!-- Управление музыкой в ванной -->
+    <on expression="bathroom_light.on">
+        <call method="_media.execute_command" command="['amixer', 'set', 'Master',
+                                                        'unmute' if expression_value else 'mute']" />
+    </on>
+
     <!-- Управление музыкой на кухне -->
     <on property="kitchen_work_zone_light.on">
         <set property="nad.speaker_b" value="kitchen_work_zone_light.on" />
