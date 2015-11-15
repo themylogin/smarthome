@@ -7,6 +7,7 @@ from themyutils.threading import start_daemon_thread
 
 from smarthome.architecture.object.datastore import Datastore
 from smarthome.common import USER_DATA_DIR
+from smarthome.config.parser.hotkey_provider import get_hotkey_provider
 from smarthome.config.parser.objects import get_objects
 from smarthome.config.parser.on import setup_ons
 from smarthome.config.parser.routines import setup_routines
@@ -16,7 +17,9 @@ from smarthome.server.container import Container
 from smarthome.server.database import Database
 from smarthome.server.imported_promises_manager import ImportedPromisesManager
 from smarthome.server.exported_promises_manager import ExportedPromisesManager
-from smarthome.server.hotkey_manager import HotkeyManager
+from smarthome.server.hotkey.manager import HotkeyManager
+from smarthome.server.hotkey.provider.libevent import LibeventHotkeyProvider
+from smarthome.server.hotkey.provider.x11 import X11HotkeyProvider
 from smarthome.server.object_manager import ObjectManager
 from smarthome.server.peer_manager import PeerManager
 from smarthome.server.remote_hotkey_manager import RemoteHotkeyManager
@@ -47,7 +50,7 @@ def setup_server(my_name, bus, config):
     container.peer_manager = PeerManager(container, my_name, bus)
     container.object_manager = ObjectManager(container)
     container.routine_manager = RoutineManager(container)
-    container.hotkey_manager = HotkeyManager(container)
+    container.hotkey_manager = HotkeyManager(container, get_hotkey_provider(config))
     container.remote_hotkey_manager = RemoteHotkeyManager(container)
 
     container.web_server = WebServer(container, "0.0.0.0", 46408)

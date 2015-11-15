@@ -2,22 +2,23 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from gi.repository import Keybinder
+
 import logging
+
+from smarthome.server.hotkey.provider.base import BaseHotkeyProvider
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"HotkeyManager"]
+__all__ = [b"X11HotkeyProvider"]
 
 
-class HotkeyManager(object):
-    def __init__(self, container):
-        self.container = container
-
+class X11HotkeyProvider(BaseHotkeyProvider):
+    def __init__(self):
         Keybinder.init()
 
     def bind(self, hotkey, func):
         gtk_hotkey = self._gtk_hotkey(hotkey)
-        bound = Keybinder.bind(gtk_hotkey, lambda *args: self._execute_hotkey(hotkey, func))
+        bound = Keybinder.bind(gtk_hotkey, lambda *args, **kwargs: func())
         if bound:
             logger.debug("Bound hotkey %r (gtk_hotkey = %r)", hotkey, gtk_hotkey)
         else:
@@ -42,7 +43,3 @@ class HotkeyManager(object):
                 raise ValueError("Unknown modifier %r while processing hotkey %r" % (modifier, hotkey))
 
         return "".join(gtk_modifiers + [key])
-
-    def _execute_hotkey(self, hotkey, func):
-        logger.debug("Got hotkey: %s", hotkey)
-        self.container.worker_pool.run_task(func)
