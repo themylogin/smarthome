@@ -74,7 +74,7 @@ class ProxyObject(object):
     def dump_properties(self):
         raise NotImplementedError
 
-    def dump_pad_connections(self):
+    def dump_incoming_pad_connections(self):
         raise NotImplementedError
 
 
@@ -261,4 +261,7 @@ class UnavailableObject(ProxyObject):
                 "output_pads": {}}
 
     def dump_properties(self):
+        return {}
+
+    def dump_incoming_pad_connections(self):
         return {}

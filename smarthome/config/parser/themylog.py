@@ -7,7 +7,7 @@ import urlparse
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"parse_themylog"]
+__all__ = [b"get_themylog"]
 
 
 def get_themylog(config):
