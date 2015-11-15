@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 __all__ = [b"eval_procedure"]
 
 
-def eval_procedure(container, procedure):
+def eval_procedure(container, procedure, **kwargs):
     had_if = False
     eval_next_else = False
     for command in procedure:
@@ -24,7 +24,7 @@ def eval_procedure(container, procedure):
                 raise ValueError("Else witout preceding if")
 
             if eval_next_else:
-                eval_procedure(container, command.getchildren())
+                eval_procedure(container, command.getchildren(), **kwargs)
             else:
                 logger.debug("Skipping this else because if condition was True")
 
@@ -35,10 +35,10 @@ def eval_procedure(container, procedure):
 
         if command.tag == "if":
             had_if = True
-            condition = parse_logic_expression(command.get("condition")).expression(container)
+            condition = parse_logic_expression(command.get("condition")).expression(container, **kwargs)
             logger.debug("Condition value: %r", condition)
             if condition:
-                eval_procedure(container, command.getchildren())
+                eval_procedure(container, command.getchildren(), **kwargs)
             else:
                 eval_next_else = True
 
@@ -46,7 +46,7 @@ def eval_procedure(container, procedure):
             if command.get("method"):
                 object, method = command.get("method").split(".")
                 meth = getattr(container.object_manager.objects[object], method)
-                result = meth(**{k: parse_logic_expression(v).expression(container)
+                result = meth(**{k: parse_logic_expression(v).expression(container, **kwargs)
                                  for k, v in command.attrib.iteritems()
                                  if k not in ("method",)})
 
@@ -56,7 +56,7 @@ def eval_procedure(container, procedure):
 
                     for child in command.getchildren():
                         getattr(result, "on_%s" % child.tag)(functools.partial(eval_procedure, container,
-                                                                               child.getchildren()))
+                                                                               child.getchildren(), **kwargs))
 
             elif command.get("routine"):
                 container.routine_manager.call_routine(command.get("routine"))
@@ -65,10 +65,10 @@ def eval_procedure(container, procedure):
             object, property = command.get("property").split(".")
             expression = parse_logic_expression(command.get("value"))
             container.object_manager.objects[object].set_property(property,
-                                                                  expression.expression(container))
+                                                                  expression.expression(container, **kwargs))
 
         elif command.tag == "async":
-            container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren()))
+            container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren(), **kwargs))
 
         elif command.tag == "connect_pad":
             dst_object = container.object_manager.objects[command.get("dst_object")]
