@@ -105,7 +105,7 @@
     </on>
     <routines>
         <turn_on_light_in_bathroom>
-            <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections == 0">
+            <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections) == 0">
                 <set property="bathroom_light.on" value="True" />
             </if>
         </turn_on_light_in_bathroom>
