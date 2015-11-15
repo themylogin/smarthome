@@ -44,3 +44,9 @@ nbproject
 # Data files
 data/database.json
 data/sound/speech_synthesizer
+
+firmware/Desktop-nucleo/Desktop-nucleo.bin
+firmware/Desktop-nucleo/Desktop-nucleo.elf
+firmware/Desktop-nucleo/Desktop-nucleo.hex
+firmware/Desktop-nucleo/Desktop-nucleo.map
+firmware/Desktop-nucleo/main.o
