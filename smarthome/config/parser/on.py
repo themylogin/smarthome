@@ -19,11 +19,13 @@ def setup_ons(config, container):
             object, signal = on_xml.get("signal").split(".")
             container.object_manager.connect_object_signal(object, signal,
                                                            functools.partial(handle_signal, container, on_xml))
-        elif on_xml.get("property"):
-            object, property = on_xml.get("property").split(".")
-            container.object_manager.add_object_property_change_observer(object, property,
-                                                                         create_property_change_observer(container,
-                                                                                                         on_xml))
+        elif on_xml.get("expression") or on_xml.get("property"):
+            expression = parse_logic_expression(on_xml.get("expression") or on_xml.get("property"))
+            observer = create_expression_change_observer(container, on_xml, expression, {})
+            for property_pointer in expression.properties_involved:
+                container.object_manager.add_object_property_change_observer(property_pointer.object_pointer.name,
+                                                                             property_pointer.name,
+                                                                             observer)
         else:
             raise ValueError("<on/> should specify signal or property to bind")
 
@@ -39,17 +41,20 @@ def handle_signal(container, on_xml, **kwargs):
     eval_procedure(container, on_xml.getchildren())
 
 
-def create_property_change_observer(container, on_xml):
+def create_expression_change_observer(container, on_xml, expression, context):
     def observer(old_value, new_value):
+        new_expression_value = expression.expression(container)
         run = True
 
         if on_xml.get("value") is not None:
-            run = run and (parse_logic_expression(on_xml.get("value")).expression(container) == new_value)
+            run = run and (parse_logic_expression(on_xml.get("value")).expression(container) == new_expression_value)
 
-        if on_xml.get("old_value") is not None:
-            run = run and (parse_logic_expression(on_xml.get("old_value")).expression(container) == old_value)
+        if on_xml.get("old_value") is not None and "value" in context:
+            run = run and (parse_logic_expression(on_xml.get("old_value")).expression(container) == context["value"])
+
+        context["value"] = new_expression_value
 
         if run:
-            eval_procedure(container, on_xml.getchildren())
+            eval_procedure(container, on_xml.getchildren(), expression_value=new_expression_value)
 
     return observer
