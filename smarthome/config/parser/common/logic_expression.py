@@ -67,4 +67,7 @@ class LogicExpressionObjectProxy(object):
         self.name = name
 
     def __getattr__(self, item):
+        if item == "_incoming_pad_connections":
+            return self.container.object_manager.objects[self.name].dump_incoming_pad_connections()
+
         return self.container.object_manager.objects[self.name].get_property(item)
