@@ -1,5 +1,6 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <smarthome>
+    <hotkey_provider>libevent</hotkey_provider>
     <themylog>unix:///run/themylog/themylog.sock</themylog>
 
     <objects>
@@ -108,6 +109,39 @@
         <call method="_media.execute_command" command="['amixer', 'set', 'Master',
                                                         'unmute' if expression_value else 'mute']" />
     </on>
+    <routines>
+        <bathroom_volume_up hotkey="(local)up">
+            <call method="_media.execute_command" command="['amixer', 'sset', 'Line', '1+']" />
+        </bathroom_volume_up>
+        <bathroom_volume_down hotkey="(local)down">
+            <call method="_media.execute_command" command="['amixer', 'sset', 'Line', '1-']" />
+        </bathroom_volume_down>
+
+        <mpc_toggle hotkey="(local)enter">
+            <call method="_media.execute_command" command="['mpc', 'toggle']" />
+        </mpc_toggle>
+        <mpc_prev hotkey="(local)left">
+            <call method="_media.execute_command" command="['mpc', 'prev']" />
+        </mpc_prev>
+        <mpc_next hotkey="(local)right">
+            <call method="_media.execute_command" command="['mpc', 'next']" />
+        </mpc_next>
+
+        <control_led_controller_on_bathroom_led_strip hotkey="btn_left">
+            <if condition="len(bathroom_led_strip._incoming_pad_connections.get('RGB', [])) == 0">
+                <set property="led_controller.generator" value="'white'" />
+                <connect_pad src_object="led_controller" src_pad="pad" dst_object="bathroom_led_strip" dst_pad="RGB" />
+            </if>
+            <else>
+                <if condition="led_controller.generator == '2ci'">
+                    <disconnect_all_from_pad dst_object="bathroom_led_strip" dst_pad="RGB" />
+                </if>
+                <else>
+                    <call method="led_controller.next_generator" />
+                </else>
+            </else>
+        </control_led_controller_on_bathroom_led_strip>
+    </routines>
 
     <!-- Управление музыкой на кухне -->
     <on property="kitchen_work_zone_light.on">
