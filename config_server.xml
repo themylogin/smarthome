@@ -98,14 +98,21 @@
 
     <!-- Включать свет при входе в ванную -->
     <on signal="bathroom_door.opened">
-        <set property="bathroom_light.on" value="True" />
+        <call routine="turn_on_light_in_bathroom" />
     </on>
     <on property="bathroom_arduino.movement" value="True">
-        <set property="bathroom_light.on" value="True" />
+        <call routine="turn_on_light_in_bathroom" />
     </on>
+    <routines>
+        <turn_on_light_in_bathroom>
+            <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections == 0">
+                <set property="bathroom_light.on" value="True" />
+            </if>
+        </turn_on_light_in_bathroom>
+    </routines>
 
     <!-- Управление музыкой в ванной -->
-    <on expression="bathroom_light.on">
+    <on expression="bathroom_light.on or len(bathroom_led_strip.pad_RGB_incoming_connections) > 0">
         <call method="_media.execute_command" command="['amixer', 'set', 'Master',
                                                         'unmute' if expression_value else 'mute']" />
     </on>
@@ -128,7 +135,8 @@
         </mpc_next>
 
         <control_led_controller_on_bathroom_led_strip hotkey="btn_left">
-            <if condition="len(bathroom_led_strip._incoming_pad_connections.get('RGB', [])) == 0">
+            <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections) == 0">
+                <set property="bathroom_light.on" value="False" />
                 <set property="led_controller.generator" value="'white'" />
                 <connect_pad src_object="led_controller" src_pad="pad" dst_object="bathroom_led_strip" dst_pad="RGB" />
             </if>

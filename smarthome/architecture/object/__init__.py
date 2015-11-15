@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from collections import defaultdict
+import copy
 import functools
 import inspect
 import logging
@@ -138,6 +139,9 @@ class Object(object):
                                    "disconnected_value": meth.smarthome_input_pad_disconnected_value}
                             for name, meth in inspect.getmembers(self, predicate=inspect.ismethod)
                             if hasattr(meth, "smarthome_input_pad")}
+        for name, desc in self._input_pads.iteritems():
+            self._create_property("pad_%s_incoming_connections" % name, set())
+
         self._output_pads = {name: {"interface": meth.smarthome_output_pad_interface,
                                     "generator": getattr(self, name)}
                              for name, meth in inspect.getmembers(self, predicate=inspect.ismethod)
@@ -262,6 +266,8 @@ class Object(object):
 
         self.__container.object_manager.on_object_pad_connected(src_object, src_pad, self._name, pad)
 
+        self.receive_property("pad_%s_incoming_connections" % pad, copy.copy(connections))
+
     def disconnect_from_pad(self, pad, src_object, src_pad):
         connection = (src_object, src_pad)
         connections = self._incoming_pad_connections[pad]
@@ -275,6 +281,8 @@ class Object(object):
                 lambda: self.__container.object_manager._write_object_pad(self._name, pad, dst_pad_desc["disconnected_value"]))
 
         self.__container.object_manager.on_object_pad_disconnected(src_object, src_pad, self._name, pad)
+
+        self.receive_property("pad_%s_incoming_connections" % pad, copy.copy(connections))
 
     def disconnect_all_from_pad(self, pad):
         for src_object, src_pad in list(self._incoming_pad_connections[pad]):
