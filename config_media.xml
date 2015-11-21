@@ -28,7 +28,10 @@
                 <async>
                     <set property="projector.on" value="True" />
                 </async>
-                <set property="all_lightning_except_projector.on" value="False" />
+                <async>
+                    <wait seconds="30" />
+                    <set property="all_lightning_except_projector.on" value="False" />
+                </async>
                 <call routine="turn_off_all_led_strips" />
             </if>
             <else>

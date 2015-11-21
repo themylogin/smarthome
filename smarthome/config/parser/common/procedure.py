@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 import functools
 import logging
 from lxml import etree
+import time
 
 from smarthome.architecture.deferred import Promise
 from smarthome.config.parser.common.logic_expression import parse_logic_expression
@@ -69,6 +70,10 @@ def eval_procedure(container, procedure, **kwargs):
 
         elif command.tag == "async":
             container.worker_pool.run_task(functools.partial(eval_procedure, container, command.getchildren(), **kwargs))
+
+        elif command.tag == "wait":
+            if command.get("seconds"):
+                time.sleep(int(command.get("seconds")))
 
         elif command.tag == "connect_pad":
             dst_object = container.object_manager.objects[command.get("dst_object")]
