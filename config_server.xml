@@ -134,6 +134,38 @@
             <call method="_media.execute_command" command="['mpc', 'next']" />
         </mpc_next>
 
+        <add_new_music>
+            <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_new.py',
+                                                             '/media/storage/Music', 'themylogin',
+                                                             '--sort', 'random']" />
+        </add_new_music>
+        <add_recent_music>
+            <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_new.py',
+                                                             '/media/storage/Music', 'themylogin']" />
+        </add_recent_music>
+        <add_random_music>
+            <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_random.py',
+                                                             '--from', '2011-01-01',
+                                                             '--min-count', '5',
+                                                             'themylogin']" />
+        </add_random_music>
+
+        <play_new_music hotkey="(local)btn_right-down S-W-Down">
+            <call method="_server.execute_command" command="['mpc', 'clear']" />
+            <call routine="add_new_music" />
+            <call method="_server.execute_command" command="['mpc', 'play']" />
+        </play_new_music>
+        <play_recent_music hotkey="(local)btn_right-left S-W-Left">
+            <call method="_server.execute_command" command="['mpc', 'clear']" />
+            <call routine="add_recent_music" />
+            <call method="_server.execute_command" command="['mpc', 'play']" />
+        </play_recent_music>
+        <play_random_music hotkey="(local)btn_right-right S-W-Right">
+            <call method="_server.execute_command" command="['mpc', 'clear']" />
+            <call routine="add_random_music" />
+            <call method="_server.execute_command" command="['mpc', 'play']" />
+        </play_random_music>
+
         <control_led_controller_on_bathroom_led_strip hotkey="btn_left">
             <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections) == 0">
                 <set property="bathroom_light.on" value="False" />
