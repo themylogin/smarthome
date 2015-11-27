@@ -21,13 +21,13 @@ class RGB_LED_Controller(Object):
         ])
 
     def init(self):
-        self.generator = None
+        self.set_generator(self.generators.keys()[0])
         self.brightness = 1
         self.sleep = 0.01
 
     @prop(receive_after=True)
     def set_generator(self, generator):
-        self.generator = self.generators[generator][1]() if generator else None
+        self.generator = self.generators[generator][1]()
 
     @method
     def next_generator(self):
@@ -35,16 +35,9 @@ class RGB_LED_Controller(Object):
             generator = self.get_property("generator")
         except PropertyHasNoValueException:
             generator = None
-        if generator:
-            keys = self.generators.keys()
-            next_generator_index = keys.index(generator) + 1
-            if next_generator_index < len(keys):
-                next_generator = keys[next_generator_index]
-            else:
-                next_generator = None
-        else:
-            next_generator = "white"
-        self.set_property("generator", next_generator)
+
+        keys = self.generators.keys()
+        self.set_property("generator", keys[(keys.index(generator) + 1) % len(keys) if generator else 0])
 
     @input_pad("float", disconnected_value=1)
     def brightness(self, value):
