@@ -134,16 +134,16 @@
             <call method="_media.execute_command" command="['mpc', 'next']" />
         </mpc_next>
 
-        <add_new_music>
+        <add_new_music hotkey="A-W-Down">
             <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_new.py',
                                                              '/media/storage/Music', 'themylogin',
                                                              '--sort', 'random']" />
         </add_new_music>
-        <add_recent_music>
+        <add_recent_music hotkey="A-W-Left">
             <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_new.py',
                                                              '/media/storage/Music', 'themylogin']" />
         </add_recent_music>
-        <add_random_music>
+        <add_random_music hotkey="A-W-Right">
             <call method="_server.execute_command" command="['python', '/home/themylogin/apps/last.fm/scipts/mpd_random.py',
                                                              '--from', '2011-01-01',
                                                              '--min-count', '5',
