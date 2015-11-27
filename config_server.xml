@@ -118,10 +118,10 @@
     </on>
     <routines>
         <bathroom_volume_up hotkey="(local)up">
-            <call method="_media.execute_command" command="['amixer', 'sset', 'Line', '1+']" />
+            <call method="_media.execute_command" command="['amixer', 'sset', 'Rear Mic', '1+']" />
         </bathroom_volume_up>
         <bathroom_volume_down hotkey="(local)down">
-            <call method="_media.execute_command" command="['amixer', 'sset', 'Line', '1-']" />
+            <call method="_media.execute_command" command="['amixer', 'sset', 'Rear Mic', '1-']" />
         </bathroom_volume_down>
 
         <mpc_toggle hotkey="(local)enter">
