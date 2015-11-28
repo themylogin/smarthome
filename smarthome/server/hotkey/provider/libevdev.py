@@ -14,10 +14,10 @@ from smarthome.server.hotkey.provider.base import BaseHotkeyProvider
 
 logger = logging.getLogger(__name__)
 
-__all__ = [b"LibeventHotkeyProvider"]
+__all__ = [b"LibevdevHotkeyProvider"]
 
 
-class LibeventHotkeyProvider(BaseHotkeyProvider):
+class LibevdevHotkeyProvider(BaseHotkeyProvider):
     def __init__(self):
         self.hotkeys = defaultdict(list)
 

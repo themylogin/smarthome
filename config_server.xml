@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8"?>
 <smarthome>
-    <hotkey_provider>libevent</hotkey_provider>
+    <hotkey_provider>libevdev</hotkey_provider>
     <themylog>unix:///run/themylog/themylog.sock</themylog>
 
     <objects>

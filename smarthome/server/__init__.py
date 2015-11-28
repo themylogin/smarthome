@@ -18,7 +18,7 @@ from smarthome.server.database import Database
 from smarthome.server.imported_promises_manager import ImportedPromisesManager
 from smarthome.server.exported_promises_manager import ExportedPromisesManager
 from smarthome.server.hotkey.manager import HotkeyManager
-from smarthome.server.hotkey.provider.libevent import LibeventHotkeyProvider
+from smarthome.server.hotkey.provider.libevdev import LibevdevHotkeyProvider
 from smarthome.server.hotkey.provider.x11 import X11HotkeyProvider
 from smarthome.server.object_manager import ObjectManager
 from smarthome.server.peer_manager import PeerManager
