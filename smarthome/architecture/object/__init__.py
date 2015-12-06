@@ -179,6 +179,9 @@ class Object(object):
         self._properties[name]["receive_before_set"] = receive_before
         self._properties[name]["receive_after_set"] = receive_after
 
+    def _set_property_writable(self, name):
+        self._set_property_setter(name, None, False, True)
+
     def _set_property_toggleable(self, name):
         self._properties[name]["toggleable"] = True
 
@@ -301,7 +304,8 @@ class Object(object):
         property = self._properties[name]
         if property["receive_before_set"]:
             self.receive_property(name, value)
-        property["set"](value)
+        if property["set"]:
+            property["set"](value)
         if property["receive_after_set"]:
             self.receive_property(name, value)
 
