@@ -166,7 +166,7 @@
             <call method="_server.execute_command" command="['mpc', 'play']" />
         </play_random_music>
 
-        <control_led_controller_on_bathroom_led_strip hotkey="btn_left">
+        <control_led_controller_on_bathroom_led_strip hotkey="(local)btn_left">
             <if condition="len(bathroom_led_strip.pad_RGB_incoming_connections) == 0">
                 <set property="bathroom_light.on" value="False" />
                 <set property="led_controller.generator" value="'white'" />
