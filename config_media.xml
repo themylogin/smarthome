@@ -30,6 +30,7 @@
                     <set property="room_recreation_light.on" value="False" />
                     <call routine="turn_on_dark_lights" />
                 </if>
+                <set property="projector_smooth.on" value="True" />
             </if>
             <else>
                 <set property="projector_smooth.on" value="False" />
