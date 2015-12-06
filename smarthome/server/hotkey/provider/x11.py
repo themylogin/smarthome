@@ -1,7 +1,7 @@
 # -*- coding=utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
-from gi.repository import Keybinder
+from gi.repository import GObject, Keybinder
 
 import logging
 
@@ -17,6 +17,9 @@ class X11HotkeyProvider(BaseHotkeyProvider):
         Keybinder.init()
 
     def bind(self, hotkey, func):
+        GObject.idle_add(self._bind, hotkey, func)
+
+    def _bind(self, hotkey, func):
         gtk_hotkey = self._gtk_hotkey(hotkey)
         bound = Keybinder.bind(gtk_hotkey, lambda *args, **kwargs: func())
         if bound:
@@ -25,6 +28,9 @@ class X11HotkeyProvider(BaseHotkeyProvider):
             logger.error("Unable to bind hotkey %r (gtk_hotkey = %r)", hotkey, gtk_hotkey)
 
     def unbind(self, hotkey):
+        GObject.idle_add(self._unbind, hotkey)
+
+    def _unbind(self, hotkey):
         Keybinder.unbind(self._gtk_hotkey(hotkey))
 
     def _gtk_hotkey(self, hotkey):
