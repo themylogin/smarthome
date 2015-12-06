@@ -16,7 +16,7 @@ __all__ = [b"setup_ons"]
 def setup_ons(config, container):
     for on_xml in config.xpath("/smarthome/on"):
         if on_xml.get("signal"):
-            object, signal = on_xml.get("signal").split(".")
+            object, signal = on_xml.get("signal").split(".", 1)
             container.object_manager.connect_object_signal(object, signal,
                                                            functools.partial(handle_signal, container, on_xml))
         elif on_xml.get("expression") or on_xml.get("property"):

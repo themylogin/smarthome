@@ -5,6 +5,10 @@
 
     <objects>
         <server_lpt class="devices.diy.parallel_port" />
+        <themylog class="devices.diy.amqp_subscriber" exchange="themylog" routing_keys="
+            theMediaShell.movie.start
+            theMediaShell.movie.resume
+        " />
 
         <!-- Освещение -->
         <lighting_box class="devices.diy.serial_bit_vector" device="/dev/ttyS5" baudrate="9600" length="8" />
