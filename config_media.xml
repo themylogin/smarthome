@@ -10,7 +10,7 @@
 
         <nad class="devices.multimedia.nad_c355bee" device="/dev/ttyUSB*, idVendor=1a86, idProduct=7523" />
 
-        <volume_meter class="devices.multimedia.volume_meter" />
+        <!-- <volume_meter class="devices.multimedia.volume_meter" /> -->
     </objects>
 
     <routines>
