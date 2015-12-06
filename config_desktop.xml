@@ -113,6 +113,12 @@
             <toggle_pad_connection src_object="volume_meter" src_pad="volume" dst_object="led_controller" dst_pad="brightness" />
         </led_controller_toggle_music>
         -->
+        <led_controller_decrease_brightness hotkey="A-W-F3">
+            <set property="led_controller.brightness" value="max(0.01, led_controller.brightness - range(1, 7)[int(led_controller.brightness * 5)] / 100.0)" />
+        </led_controller_decrease_brightness>
+        <led_controller_increase_brightness hotkey="A-W-F4">
+            <set property="led_controller.brightness" value="min(1, led_controller.brightness + range(1, 7)[int(led_controller.brightness * 5)] / 100.0)" />
+        </led_controller_increase_brightness>
 
         <toggle_led_controller_on_ambient_led_strip hotkey="A-W-F5">
             <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
@@ -120,5 +126,17 @@
         <toggle_led_controller_on_desktop_tabletop_led_strip hotkey="A-W-F6">
             <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="desktop_tabletop_led_strip" dst_pad="RGB" />
         </toggle_led_controller_on_desktop_tabletop_led_strip>
+
+        <toggle_dark_lights hotkey="A-W-F8">
+            <if condition="len(ambient_led_strip.pad_RGB_incoming_connections) == 0">
+                <call routine="turn_off_all_led_strips" />
+                <set property="led_controller.brightness" value="0.05" />
+                <connect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
+            </if>
+            <else>
+                <disconnect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
+                <set property="led_controller.brightness" value="1.0" />
+            </else>
+        </toggle_dark_lights>
     </routines>
 </smarthome>
