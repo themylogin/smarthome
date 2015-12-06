@@ -11,6 +11,12 @@ __all__ = [b"RGB_LED_Controller"]
 
 class RGB_LED_Controller(Object):
     def create(self):
+        self._create_property("brightness", 1.0)
+        self._set_property_writable("brightness")
+
+        self._create_property("speed", 100)
+        self._set_property_writable("speed")
+
         self.generators = OrderedDict([
             ("white",   ("светится белым", solid_color_generator(255, 255, 255))),
             ("red",     ("светится красным", solid_color_generator(255, 0, 0))),
@@ -22,7 +28,7 @@ class RGB_LED_Controller(Object):
 
     def init(self):
         self.set_generator(self.generators.keys()[0])
-        self.brightness = 1
+        self.pad_brightness = 1
         self.sleep = 0.01
 
     @prop(receive_after=True)
@@ -41,7 +47,7 @@ class RGB_LED_Controller(Object):
 
     @input_pad("float", disconnected_value=1)
     def brightness(self, value):
-        self.brightness = value
+        self.pad_brightness = value
 
     @prop(receive_after=True)
     def set_speed(self, speed):
@@ -53,12 +59,17 @@ class RGB_LED_Controller(Object):
         while True:
             if self.generator:
                 had_generator = True
-                yield map(self._brightness_to_pwm, map(lambda x: x * self.brightness, self.generator.next()))
+                yield map(self._brightness_to_pwm,
+                          map(lambda x: x * self.pad_brightness * self.get_property("brightness"),
+                              self.generator.next()))
             elif had_generator:
                 had_generator = False
                 yield 0, 0, 0
 
-            time.sleep(self.sleep)
+            sleep_for = 1.0 / self.get_property("speed")
+            wake_up_at = time.time() + sleep_for
+            while time.time() < wake_up_at:
+                time.sleep(min(sleep_for, 0.1))
 
     def _brightness_to_pwm(self, brightness):
         return brightness / 255
