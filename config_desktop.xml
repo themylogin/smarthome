@@ -127,15 +127,21 @@
             <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="desktop_tabletop_led_strip" dst_pad="RGB" />
         </toggle_led_controller_on_desktop_tabletop_led_strip>
 
+        <turn_on_dark_lights>
+            <call routine="turn_off_all_led_strips" />
+            <set property="led_controller.brightness" value="0.05" />
+            <connect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
+        </turn_on_dark_lights>
+        <turn_off_dark_lights>
+            <disconnect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
+            <set property="led_controller.brightness" value="1.0" />
+        </turn_off_dark_lights>
         <toggle_dark_lights hotkey="A-W-F8">
             <if condition="len(ambient_led_strip.pad_RGB_incoming_connections) == 0">
-                <call routine="turn_off_all_led_strips" />
-                <set property="led_controller.brightness" value="0.05" />
-                <connect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
+                <call routine="turn_on_dark_lights" />
             </if>
             <else>
-                <disconnect_pad src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
-                <set property="led_controller.brightness" value="1.0" />
+                <call routine="turn_off_dark_lights" />
             </else>
         </toggle_dark_lights>
     </routines>

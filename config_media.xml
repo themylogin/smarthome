@@ -25,25 +25,30 @@
         -->
         <toggle_watch_projector hotkey="W-F5 (local)XF86HomePage">
             <if condition="projector.on == False">
-                <async>
-                    <set property="projector.on" value="True" />
-                </async>
-                <async>
-                    <wait seconds="30" />
-                    <set property="all_lightning_except_projector.on" value="False" />
-                </async>
-                <call routine="turn_off_all_led_strips" />
+                <!-- Заменить яркий свет тусклым в той половине комнаты, где проектор -->
+                <if condition="room_recreation_light.on">
+                    <set property="room_recreation_light.on" value="False" />
+                    <call routine="turn_on_dark_lights" />
+                </if>
             </if>
             <else>
                 <set property="projector_smooth.on" value="False" />
             </else>
         </toggle_watch_projector>
-        <toggle_projector hotkey="C-W-F5 (local)W-XF86HomePage">
-            <call method="projector_smooth.toggle_on" />
-        </toggle_projector>
+        <turn_off_all_lights_except_projector hotkey="C-W-F5 (local)W-XF86HomePage">
+            <set property="all_lightning_except_projector.on" value="False" />
+            <call routine="turn_off_all_led_strips" />
+        </turn_off_all_lights_except_projector>
 
         <toggle_projector_source hotkey="W-F12">
             <call method="projector.toggle_hdmi_source" />
         </toggle_projector_source>
     </routines>
+
+    <on signal="themylog.theMediaShell.movie.start">
+        <call routine="turn_off_all_lights_except_projector" />
+    </on>
+    <on signal="themylog.theMediaShell.movie.resume">
+        <call routine="turn_off_all_lights_except_projector" />
+    </on>
 </smarthome>
