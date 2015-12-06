@@ -101,24 +101,24 @@
         ######## ######## ########      ######     ##    ##     ## #### ##         ######
           -->
         <turn_off_all_led_strips>
-            <disconnect_all_from_pad dst_object="ambient_led_strip" dst_pad="RGB" />
             <disconnect_all_from_pad dst_object="desktop_tabletop_led_strip" dst_pad="RGB" />
+            <disconnect_all_from_pad dst_object="ambient_led_strip" dst_pad="RGB" />
         </turn_off_all_led_strips>
 
         <led_controller_next_generator hotkey="A-W-F1">
             <call method="led_controller.next_generator" />
         </led_controller_next_generator>
         <!--
-        <led_controller_toggle_music hotkey="A-W-F4">
+        <led_controller_toggle_music hotkey="A-W-F2">
             <toggle_pad_connection src_object="volume_meter" src_pad="volume" dst_object="led_controller" dst_pad="brightness" />
         </led_controller_toggle_music>
         -->
 
-        <toggle_led_controller_on_desktop_tabletop_led_strip hotkey="A-W-F5">
-            <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="desktop_tabletop_led_strip" dst_pad="RGB" />
-        </toggle_led_controller_on_desktop_tabletop_led_strip>
-        <toggle_led_controller_on_ambient_led_strip hotkey="A-W-F6">
+        <toggle_led_controller_on_ambient_led_strip hotkey="A-W-F5">
             <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="ambient_led_strip" dst_pad="RGB" />
         </toggle_led_controller_on_ambient_led_strip>
+        <toggle_led_controller_on_desktop_tabletop_led_strip hotkey="A-W-F6">
+            <toggle_pad_connection src_object="led_controller" src_pad="pad" dst_object="desktop_tabletop_led_strip" dst_pad="RGB" />
+        </toggle_led_controller_on_desktop_tabletop_led_strip>
     </routines>
 </smarthome>
