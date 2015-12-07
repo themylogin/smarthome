@@ -68,7 +68,13 @@
              3 минуты погуглил и снова спать, а в 02:24 сработает таймер, то получится, что лёг спать в 02:04,
              хотя на самом деле в 02:10 -->
         <sleep_tracker class="watchers.expirable_hysteresis"
-                       expression="not (owner_watcher.anybody_at_home and not all_lightning.on)"
+                       expression="not (
+                           owner_watcher.anybody_at_home and
+                           not all_lightning.on and
+                           len(desktop_tabletop_led_strip.pad_RGB_incoming_connections) == 0 and
+                           len(ambient_led_strip.pad_RGB_incoming_connections) == 0 and
+                           len(bathroom_led_strip.pad_RGB_incoming_connections) == 0
+                       )"
 
                        false_to_true_signal="woke_up"
                        false_to_true_timeout="1200"
