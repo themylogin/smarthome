@@ -85,11 +85,11 @@ def solid_color_generator(r, g, b):
 
 def glow_generator():
     while True:
-        for i in range(0, 256):
+        for i in range(0, 255):
             yield 255 - i, i, 0
-        for i in range(0, 256):
+        for i in range(0, 255):
             yield 0, 255 - i, i
-        for i in range(0, 256):
+        for i in range(0, 255):
             yield i, 0, 255 - i
 
 
