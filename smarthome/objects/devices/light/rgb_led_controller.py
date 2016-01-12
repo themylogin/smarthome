@@ -23,6 +23,7 @@ class RGB_LED_Controller(Object):
             ("green",   ("светится зелёным", solid_color_generator(0, 255, 0))),
             ("blue",    ("светится синим", solid_color_generator(0, 0, 255))),
             ("glow",    ("переливается", glow_generator)),
+            ("alt-glow",("сливается", altglow_generator)),
             ("xmas",    ("ебёт", christmas_generator)),
             ("2ci",     ("ебашит", twoci_generator)),
         ])
@@ -91,6 +92,28 @@ def glow_generator():
             yield 0, 255 - i, i
         for i in range(0, 255):
             yield i, 0, 255 - i
+
+
+def altglow_generator():
+    while True:
+        # Красный в желтый
+        for i in range(1, 256):
+            yield 255, i, 0
+        # Желтый в зеленый
+        for i in range(1, 256):
+            yield 255 - i, 255, 0
+        # Зеленый в голубой
+        for i in range(0, 256):
+            yield 0, 255, i
+        # Голубой в синий
+        for i in range(1, 256):
+            yield 0, 255 - i, 255
+        # Синий в розовый
+        for i in range(0, 256):
+            yield i, 0, 255
+        # Розовый в красный
+        for i in range(1, 256):
+            yield 255, 0, 255 - i
 
 
 def christmas_generator():
